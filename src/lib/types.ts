@@ -9,6 +9,8 @@ export type Product = {
     url: string;
     hint: string;
   };
+  categories: { id: number; name: string; slug: string }[];
+  images: { id: number; src: string; alt: string }[];
 };
 
 export type CartItem = {

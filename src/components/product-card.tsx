@@ -4,7 +4,6 @@ import type { Product } from "@/lib/types";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
 } from "@/components/ui/card";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -20,12 +19,11 @@ export function ProductCard({ product }: ProductCardProps) {
         <Link href={`/products/${product.slug}`} className="block">
           <div className="relative aspect-square w-full">
             <Image
-              src={product.image.url}
+              src={product.images[0]?.src || '/placeholder.jpg'}
               alt={product.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint={product.image.hint}
             />
           </div>
         </Link>
@@ -35,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <h3 className="font-semibold">{product.name}</h3>
         </Link>
         <div className="flex items-center justify-between pt-4">
-          <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
+          <p className="text-lg font-bold">${product.price}</p>
           <AddToCartButton product={product} variant="icon" />
         </div>
       </CardContent>

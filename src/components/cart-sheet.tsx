@@ -41,19 +41,18 @@ export function CartSheet() {
                   <div key={item.product.id} className="flex items-start gap-4">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
                        <Image
-                          src={item.product.image.url}
+                          src={item.product.images[0]?.src || '/placeholder.jpg'}
                           alt={item.product.name}
                           fill
                           sizes="80px"
                           className="object-cover"
-                          data-ai-hint={item.product.image.hint}
                         />
                     </div>
                     <div className="flex-1">
                       <Link href={`/products/${item.product.slug}`} className="font-medium hover:underline">
                         {item.product.name}
                       </Link>
-                      <p className="text-sm text-muted-foreground">${item.product.price.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">${item.product.price}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>

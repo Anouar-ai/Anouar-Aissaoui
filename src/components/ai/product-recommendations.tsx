@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { aiProductRecommendations } from "@/ai/flows/ai-product-recommendations";
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { ProductCard } from "../product-card";
 import { Skeleton } from "../ui/skeleton";
@@ -25,6 +25,7 @@ export default function ProductRecommendations() {
       setLoading(true);
       setError(null);
       try {
+        const products = await getProducts();
         const productNames = cartItems.map(item => item.product.name);
         const result = await aiProductRecommendations({ productNames });
         

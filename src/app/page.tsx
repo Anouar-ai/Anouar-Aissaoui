@@ -1,7 +1,8 @@
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 import { ProductCard } from "@/components/product-card";
 
-export default function Home() {
+export default async function Home() {
+  const products = await getProducts();
   return (
     <div className="container py-8">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Explore Our Collection</h1>
