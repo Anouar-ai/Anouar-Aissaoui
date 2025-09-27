@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "modern-chair",
+      "description": "A modern minimalist chair.",
+      "imageUrl": "https://images.unsplash.com/photo-1681394949029-fb3d12e96650?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtb2Rlcm4lMjBjaGFpcnxlbnwwfHx8fDE3NTg5MTk2NTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern chair"
+    },
+    {
+      "id": "wooden-desk",
+      "description": "A rustic wooden desk.",
+      "imageUrl": "https://images.unsplash.com/photo-1437419764061-2473afe69fc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b29kZW4lMjBkZXNrfGVufDB8fHx8MTc1ODk2NjIzNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wooden desk"
+    },
+    {
+      "id": "floor-lamp",
+      "description": "An industrial style floor lamp.",
+      "imageUrl": "https://images.unsplash.com/photo-1607809714110-e34f71c7b2ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmbG9vciUyMGxhbXB8ZW58MHx8fHwxNzU4OTQ2OTI1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "floor lamp"
+    },
+    {
+      "id": "plush-sofa",
+      "description": "A comfortable plush sofa.",
+      "imageUrl": "https://images.unsplash.com/photo-1589999405517-d19e4c105649?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwbHVzaCUyMHNvZmF8ZW58MHx8fHwxNzU4OTY3NzEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "plush sofa"
+    },
+    {
+      "id": "coffee-table",
+      "description": "A sleek glass coffee table.",
+      "imageUrl": "https://images.unsplash.com/photo-1461418559055-6f020c5a91e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2ZmZWUlMjB0YWJsZXxlbnwwfHx8fDE3NTg5MjU2NjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coffee table"
+    },
+    {
+      "id": "bookshelf",
+      "description": "A tall wooden bookshelf.",
+      "imageUrl": "https://images.unsplash.com/photo-1603058817990-2b9a9abbce86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxib29rc2hlbGZ8ZW58MHx8fHwxNzU4OTE0NzgxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bookshelf"
+    },
+    {
+      "id": "designer-vase",
+      "description": "A ceramic designer vase.",
+      "imageUrl": "https://images.unsplash.com/photo-1571898219555-7a1d0c3bea5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNpZ25lciUyMHZhc2V8ZW58MHx8fHwxNzU4OTkwODYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "designer vase"
+    },
+    {
+      "id": "art-print",
+      "description": "An abstract art print in a frame.",
+      "imageUrl": "https://images.unsplash.com/photo-1577083165633-14ebcdb0f658?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhcnQlMjBwcmludHxlbnwwfHx8fDE3NTg4ODI3MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "art print"
+    }
+  ]
 }
