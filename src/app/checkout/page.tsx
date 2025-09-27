@@ -1,133 +1,204 @@
-
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-export default function CheckoutPage() {
-  const { cartItems, totalPrice, clearCart } = useCart();
+
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
+
+function StripeForm() {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { cartItems, clearCart } = useCart();
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const router = useRouter();
 
-  async function handleCheckout(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const formProps = Object.fromEntries(formData);
+    if (!stripe || !elements) {
+      return;
+    }
+    setLoading(true);
 
-    const orderData = {
-      payment_method: "bacs",
-      payment_method_title: "Direct Bank Transfer",
-      set_paid: false,
-      billing: {
-        first_name: formProps.first_name,
-        last_name: formProps.last_name,
-        address_1: formProps.address_1,
-        city: formProps.city,
-        country: formProps.country,
-        email: formProps.email,
-        phone: formProps.phone,
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      toast({
+        title: "Error",
+        description: submitError.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+    
+    const res = await fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cartItems }),
+    });
+
+    const { clientSecret } = await res.json();
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      clientSecret,
+      confirmParams: {
+        return_url: `${window.location.origin}/order-confirmation`,
       },
-      shipping: {
-        first_name: formProps.first_name,
-        last_name: formProps.last_name,
-        address_1: formProps.address_1,
-        city: formProps.city,
-        country: formProps.country,
-      },
-      line_items: cartItems.map((item) => ({
-        product_id: item.product.id,
-        quantity: item.quantity,
-      })),
-      shipping_lines: [
-        {
-          method_id: "flat_rate",
-          method_title: "Flat Rate",
-          total: "10.00",
+      redirect: "if_required",
+    });
+
+    if (error) {
+      toast({
+        title: "Payment failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (paymentIntent.status === "succeeded") {
+      const orderData = {
+        payment_method: "stripe",
+        payment_method_title: "Credit Card (Stripe)",
+        set_paid: true,
+        billing: {
+          first_name: "John", // These would come from a form
+          last_name: "Doe",
+          email: "john.doe@example.com",
+          address_1: "123 Test St",
+          city: "Testville",
+          country: "US"
         },
-      ],
-    };
-
-    try {
-      const response = await fetch("/api/create-order", {
+        line_items: cartItems.map((item) => ({
+          product_id: item.product.id,
+          quantity: item.quantity,
+        })),
+        meta_data: [
+          {
+            key: "_stripe_payment_intent_id",
+            value: paymentIntent.id
+          }
+        ]
+      };
+  
+      const orderRes = await fetch("/api/create-order", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create order");
+      if (!orderRes.ok) {
+        toast({
+            title: "Order creation failed",
+            description: "Your payment was successful, but we couldn't create your order. Please contact support.",
+            variant: "destructive",
+        })
+      } else {
+        const order = await orderRes.json();
+        clearCart();
+        router.push(`/order-confirmation?order_id=${order.id}&total=${order.total}`);
       }
-
-      const order = await response.json();
-      clearCart();
-      router.push(`/order-confirmation?order_id=${order.id}&total=${order.total}`);
-    } catch (error) {
-      console.error(error);
-      alert("There was an error placing your order. Please try again.");
     }
+    setLoading(false);
   }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      <Button
+        type="submit"
+        disabled={loading || !stripe || !elements}
+        className="w-full"
+        size="lg"
+      >
+        {loading ? <Loader2 className="animate-spin" /> : "Pay Now"}
+      </Button>
+    </form>
+  );
+}
+
+export default function CheckoutPage() {
+  const { cartItems, totalPrice } = useCart();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (totalPrice > 0) {
+      fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartItems }),
+      })
+        .then((res) => res.json())
+        .then((data) => setClientSecret(data.clientSecret));
+    }
+  }, [cartItems, totalPrice]);
+
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="container mx-auto py-12 text-center">
+        <h1 className="mb-4 text-3xl font-bold">Your cart is empty.</h1>
+        <Button onClick={() => window.location.href = '/'}>Go Shopping</Button>
+      </div>
+    );
+  }
+
+  const options = {
+    clientSecret,
+    appearance: {
+      theme: 'stripe' as const,
+      variables: {
+        colorPrimary: '#673ab7',
+        colorBackground: '#f5f5f5',
+        colorText: '#242424',
+        colorDanger: '#df1b41',
+        fontFamily: 'Inter, sans-serif',
+        borderRadius: '0.5rem',
+      },
+    }
+  };
 
   return (
     <div className="container mx-auto py-12">
       <h1 className="mb-8 text-3xl font-bold tracking-tight">Checkout</h1>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-        <div>
+        <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Shipping Information</CardTitle>
-              <CardDescription>
-                Enter your shipping details below.
-              </CardDescription>
+              <CardTitle>Payment Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleCheckout} className="space-y-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name">First Name</Label>
-                    <Input id="first_name" name="first_name" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name">Last Name</Label>
-                    <Input id="last_name" name="last_name" required />
-                  </div>
+              {clientSecret ? (
+                <Elements stripe={stripePromise} options={options}>
+                  <StripeForm />
+                </Elements>
+              ) : (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required />
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" type="tel" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address_1">Address</Label>
-                  <Input id="address_1" name="address_1" required />
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" name="city" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input id="country" name="country" required />
-                  </div>
-                </div>
-                <Button type="submit" size="lg" className="w-full">
-                  Place Order
-                </Button>
-              </form>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -142,18 +213,16 @@ export default function CheckoutPage() {
                   <span>
                     {item.product.name} x {item.quantity}
                   </span>
-                  <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                  <span>
+                    ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                  </span>
                 </div>
               ))}
               <div className="flex justify-between border-t pt-4 font-semibold">
-                <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
-              </div>
-               <div className="flex justify-between font-semibold">
                 <span>Shipping</span>
                 <span>$10.00</span>
               </div>
-              <div className="flex justify-between border-t pt-4 text-lg font-bold">
+              <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span>${(totalPrice + 10).toFixed(2)}</span>
               </div>
