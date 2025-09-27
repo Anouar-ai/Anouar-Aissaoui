@@ -1,25 +1,10 @@
-import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
-const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_WP_GRAPHQL_ENDPOINT,
-});
-
-const authLink = setContext((_, { headers }) => {
-  const token = Buffer.from(
-    `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
-  ).toString('base64');
-
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Basic ${token}` : '',
-    },
-  };
-});
-
+// This client is now intended for client-side use, hitting our own API proxy.
 const client = new ApolloClient({
-  link: from([authLink, httpLink]),
+  link: new HttpLink({
+    uri: '/api/graphql', 
+  }),
   cache: new InMemoryCache(),
 });
 
