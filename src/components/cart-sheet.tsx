@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -16,15 +17,6 @@ import ProductRecommendations from "./ai/product-recommendations";
 
 export function CartSheet() {
   const { cartItems, removeFromCart, updateQuantity, totalPrice, cartCount } = useCart();
-
-  const handleCheckout = () => {
-    // In a real app, this would build a checkout URL and redirect.
-    // For this demo, we'll just log to the console and show an alert.
-    console.log("Redirecting to WooCommerce checkout with items:", cartItems);
-    alert("Redirecting to checkout! (See browser console for details)");
-    // A real implementation would look something like this:
-    // window.location.href = `https://your-woocommerce-site.com/checkout`;
-  };
 
   return (
     <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
@@ -49,9 +41,11 @@ export function CartSheet() {
                         />
                     </div>
                     <div className="flex-1">
-                      <Link href={`/products/${item.product.slug}`} className="font-medium hover:underline">
-                        {item.product.name}
-                      </Link>
+                      <SheetClose asChild>
+                        <Link href={`/products/${item.product.slug}`} className="font-medium hover:underline">
+                          {item.product.name}
+                        </Link>
+                      </SheetClose>
                       <p className="text-sm text-muted-foreground">${item.product.price}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -82,9 +76,11 @@ export function CartSheet() {
                 <span>Subtotal</span>
                 <span>${totalPrice.toFixed(2)}</span>
               </div>
-              <Button className="w-full" size="lg" onClick={handleCheckout}>
-                Proceed to Checkout
-              </Button>
+              <SheetClose asChild>
+                <Button asChild className="w-full" size="lg">
+                  <Link href="/checkout">Proceed to Checkout</Link>
+                </Button>
+              </SheetClose>
             </div>
           </SheetFooter>
         </>
