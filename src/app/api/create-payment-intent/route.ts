@@ -64,7 +64,7 @@ export async function POST(request: Request) {
      }, 0);
      
     // Add a flat shipping rate
-    const shippingAmount = 10;
+    const shippingAmount = 0;
     const totalAmount = amount + shippingAmount;
 
     if (totalAmount <= 0) {

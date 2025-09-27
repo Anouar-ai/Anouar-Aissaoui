@@ -221,11 +221,11 @@ export default function CheckoutPage() {
               ))}
               <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Shipping</span>
-                <span>$10.00</span>
+                <span className="text-green-600">Free</span>
               </div>
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${(totalPrice + 10).toFixed(2)}</span>
+                <span>${totalPrice.toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>
@@ -234,4 +234,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-
