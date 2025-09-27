@@ -1,32 +1,43 @@
 import type { Product } from '@/lib/types';
-import client from './apollo';
-import { GET_PRODUCTS, GET_PRODUCT_BY_SLUG } from '@/queries/products';
+
+const API_URL = process.env.NEXT_PUBLIC_WC_API_URL;
+const CONSUMER_KEY = process.env.WC_CONSUMER_KEY;
+const CONSUMER_SECRET = process.env.WC_CONSUMER_SECRET;
+
+const authHeader = 'Basic ' + Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
 
 function formatProduct(product: any): Product {
     return {
-        id: product.databaseId,
+        id: product.id,
         name: product.name,
         slug: product.slug,
         description: product.description || '',
         price: parseFloat(product.price),
-        images: product.image ? [{ id: 0, src: product.image.sourceUrl, alt: product.name }] : [],
-        categories: [],
+        images: product.images.map((img: any) => ({ id: img.id, src: img.src, alt: img.alt })),
+        categories: product.categories.map((cat: any) => ({ id: cat.id, name: cat.name, slug: cat.slug })),
     };
 }
 
 
 export async function getProducts(): Promise<Product[]> {
-  const { data } = await client.query({ query: GET_PRODUCTS });
-  return data.products.nodes.map(formatProduct);
+    const res = await fetch(`${API_URL}/products`, {
+        headers: {
+            'Authorization': authHeader
+        }
+    });
+    const productsData = await res.json();
+    return productsData.map(formatProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-    const { data } = await client.query({
-        query: GET_PRODUCT_BY_SLUG,
-        variables: { slug },
+    const res = await fetch(`${API_URL}/products?slug=${slug}`, {
+         headers: {
+            'Authorization': authHeader
+        }
     });
-    if (data.product) {
-        return formatProduct(data.product);
+    const products = await res.json();
+    if (products && products.length > 0) {
+        return formatProduct(products[0]);
     }
     return null;
 }
