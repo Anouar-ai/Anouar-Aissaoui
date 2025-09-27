@@ -4,13 +4,8 @@ export type Product = {
   slug: string;
   description: string;
   price: number;
-  image: {
-    id: string;
-    url: string;
-    hint: string;
-  };
-  categories: { id: number; name: string; slug: string }[];
   images: { id: number; src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
 };
 
 export type CartItem = {
