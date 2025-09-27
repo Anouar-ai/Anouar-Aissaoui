@@ -26,16 +26,16 @@ export async function POST(request: Request) {
             next: { revalidate: 60 } 
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errorBody = await response.text();
-            console.error('Upstream GraphQL API Error:', response.status, errorBody);
+            console.error('Upstream GraphQL API Error:', response.status, data);
             return NextResponse.json(
-                { error: 'Failed to fetch from upstream GraphQL API', details: errorBody },
+                { error: 'Failed to fetch from upstream GraphQL API', details: data },
                 { status: response.status }
             );
         }
-
-        const data = await response.json();
+        
         return NextResponse.json(data);
 
     } catch (error: any) {
