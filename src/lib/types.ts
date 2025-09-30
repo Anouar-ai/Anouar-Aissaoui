@@ -16,6 +16,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
+  seo?: SEO;
 }
 
 export interface SEO {

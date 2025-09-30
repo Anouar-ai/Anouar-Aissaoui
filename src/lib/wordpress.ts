@@ -187,6 +187,10 @@ export async function getCategories(): Promise<Category[]> {
                         id
                         name
                         slug
+                        seo {
+                            title
+                            metaDesc
+                        }
                     }
                 }
             }

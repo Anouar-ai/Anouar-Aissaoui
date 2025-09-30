@@ -15,6 +15,22 @@ export async function generateStaticParams() {
   }));
 }
 
+export async function generateMetadata({ params }: CategoryPageProps) {
+    const allCategories = await getCategories();
+    const category = allCategories.find(c => c.slug === params.category);
+
+    if (!category) {
+        return {
+            title: 'Category not found',
+        };
+    }
+
+    return {
+        title: category.seo?.title || category.name,
+        description: category.seo?.metaDesc || `Posts in the ${category.name} category`,
+    };
+}
+
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const allCategories = await getCategories();
   const category = allCategories.find(c => c.slug === params.category);
