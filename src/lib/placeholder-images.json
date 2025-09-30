@@ -1,3 +1,64 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "post-1",
+      "description": "A modern building with interesting angles",
+      "imageUrl": "https://images.unsplash.com/photo-1518436127045-3367819540bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtb2Rlcm4lMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzU5MTU2OTg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern architecture"
+    },
+    {
+      "id": "post-2",
+      "description": "A developer coding on a laptop",
+      "imageUrl": "https://images.unsplash.com/photo-1667984436031-ea1d9ff307ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkZXZlbG9wZXIlMjBjb2Rpbmd8ZW58MHx8fHwxNzU5MDc2MTQwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "developer coding"
+    },
+    {
+      "id": "post-3",
+      "description": "A serene forest landscape with a path",
+      "imageUrl": "https://images.unsplash.com/photo-1507139722691-cc2c94e3a2b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc1OTE1MjAyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest path"
+    },
+    {
+      "id": "post-4",
+      "description": "A colorful abstract painting",
+      "imageUrl": "https://images.unsplash.com/photo-1531489956451-20957fab52f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhYnN0cmFjdCUyMHBhaW50aW5nfGVufDB8fHx8MTc1OTE2NTU4MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract painting"
+    },
+    {
+      "id": "post-5",
+      "description": "City skyline at dusk",
+      "imageUrl": "https://images.unsplash.com/photo-1668409070562-aa7ef6de2347?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjaXR5JTIwZHVza3xlbnwwfHx8fDE3NTkyMDA3MTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city dusk"
+    },
+    {
+      "id": "post-6",
+      "description": "A vintage typewriter on a wooden desk",
+      "imageUrl": "https://images.unsplash.com/photo-1510442650500-93217e634e4c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx2aW50YWdlJTIwdHlwZXdyaXRlcnxlbnwwfHx8fDE3NTkxNjI5NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vintage typewriter"
+    },
+    {
+      "id": "post-7",
+      "description": "A close-up of a blooming flower",
+      "imageUrl": "https://images.unsplash.com/photo-1653221230402-565e6dd94df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxibG9vbWluZyUyMGZsb3dlcnxlbnwwfHx8fDE3NTkyMDA3MTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "blooming flower"
+    },
+    {
+      "id": "post-8",
+      "description": "A mountain range with a clear blue sky",
+      "imageUrl": "https://images.unsplash.com/photo-1526239187794-f8c27c7872ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb3VudGFpbiUyMHJhbmdlfGVufDB8fHx8MTc1OTIwMDcxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain range"
+    },
+    {
+      "id": "author-jane-doe",
+      "description": "Portrait of Jane Doe",
+      "imageUrl": "https://images.unsplash.com/photo-1592621385612-4d7129426394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc1OTE3MTY1OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "author-john-smith",
+      "description": "Portrait of John Smith",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTkxNzE5NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    }
+  ]
 }
