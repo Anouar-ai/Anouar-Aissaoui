@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Alegreya } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/layout/header';
@@ -11,6 +12,12 @@ export const metadata: Metadata = {
   description: 'A fantastic blog built with Next.js and AI.',
 };
 
+const alegreya = Alegreya({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-alegreya',
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -18,14 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
-      </head>
       <body
         className={cn(
-          'min-h-screen bg-background font-body antialiased'
+          'min-h-screen bg-background font-body antialiased',
+          alegreya.variable
         )}
       >
         <ThemeProvider
