@@ -1,4 +1,5 @@
 import type { Post, Category, Tag, Author } from './types';
+import { PlaceHolderImages } from './placeholder-images';
 
 const API_URL = 'https://dev-anouarweb.pantheonsite.io/graphql';
 
@@ -22,24 +23,26 @@ async function fetchAPI(query: string, { variables }: { variables?: any } = {}) 
     return json.data;
 }
 
-function mapPost(postData: any): Post {
+function mapPost(postData: any, index: number = 0): Post {
     const { id, title, slug, excerpt, content, date, featuredImage, author, categories, tags } = postData;
     const category = categories?.edges[0]?.node || { name: 'Uncategorized', slug: 'uncategorized' };
-    
+
+    const placeholderImage = PlaceHolderImages.find(p => p.id === `post-${(index % 8) + 1}`) || PlaceHolderImages[0];
+
     return {
         id,
         title,
         slug,
-        excerpt: excerpt || '',
+        excerpt: excerpt || content.slice(0, 150) + '...',
         content,
-        image: featuredImage?.node?.sourceUrl || 'https://picsum.photos/seed/default/1200/800',
-        imageHint: featuredImage?.node?.altText || 'placeholder image',
+        image: featuredImage?.node?.sourceUrl || placeholderImage.imageUrl,
+        imageHint: featuredImage?.node?.altText || placeholderImage.imageHint,
         publishedAt: date,
         author: {
             id: author?.node?.id || '0',
             name: author?.node?.name || 'Anonymous',
             slug: author?.node?.slug || 'anonymous',
-            avatar: author?.node?.avatar?.url || `https://www.gravatar.com/avatar/${author?.node?.id}?d=mp`,
+            avatar: author?.node?.avatar?.url || PlaceHolderImages.find(p => p.id.startsWith('author-'))?.imageUrl || `https://www.gravatar.com/avatar/${author?.node?.id}?d=mp`,
             avatarHint: author?.node?.name || 'author avatar'
         },
         category: {
@@ -59,8 +62,9 @@ export async function getPosts(): Promise<Post[]> {
                     node {
                         id
                         title
-                        excerpt
+                        excerpt(format: RENDERED)
                         slug
+                        content(format: RENDERED)
                         date
                         featuredImage {
                             node {
@@ -101,7 +105,7 @@ export async function getPosts(): Promise<Post[]> {
             }
         }
     `);
-    return data?.posts.edges.map((edge: any) => mapPost(edge.node));
+    return data?.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
@@ -111,8 +115,8 @@ export async function getPostBySlug(slug: string): Promise<Post | undefined> {
                 id
                 title
                 slug
-                content
-                excerpt
+                content(format: RENDERED)
+                excerpt(format: RENDERED)
                 date
                 featuredImage {
                     node {
@@ -213,7 +217,20 @@ export async function getAuthors(): Promise<Author[]> {
             }
         }
     `);
-    return data?.users.edges.map((edge: any) => ({...edge.node, avatarHint: edge.node.name, avatar: edge.node.avatar?.url}));
+    return data?.users.edges.map((edge: any) => {
+        const authorImages = [
+            PlaceHolderImages.find(p => p.id === 'author-jane-doe'),
+            PlaceHolderImages.find(p => p.id === 'author-john-smith')
+        ].filter(Boolean);
+        const authorImage = authorImages[Math.floor(Math.random() * authorImages.length)];
+        return {
+            id: edge.node.id,
+            name: edge.node.name,
+            slug: edge.node.slug,
+            avatar: edge.node.avatar?.url || authorImage?.imageUrl || `https://www.gravatar.com/avatar/${edge.node.id}?d=mp`,
+            avatarHint: edge.node.name || authorImage?.imageHint || 'author avatar'
+        }
+    });
 }
 
 export async function getPostsByCategory(categorySlug: string): Promise<Post[]> {
@@ -226,7 +243,8 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
             node {
               id
               title
-              excerpt
+              excerpt(format: RENDERED)
+              content(format: RENDERED)
               slug
               date
               featuredImage {
@@ -267,7 +285,7 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
       },
     }
   );
-  return data?.category.posts.edges.map((edge: any) => mapPost(edge.node));
+  return data?.category.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
 }
 
 export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
@@ -280,7 +298,8 @@ export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
             node {
               id
               title
-              excerpt
+              excerpt(format: RENDERED)
+              content(format: RENDERED)
               slug
               date
               featuredImage {
@@ -321,7 +340,7 @@ export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
       },
     }
   );
-  return data?.tag.posts.edges.map((edge: any) => mapPost(edge.node));
+  return data?.tag.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
 }
 
 
@@ -335,7 +354,8 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
             node {
               id
               title
-              excerpt
+              excerpt(format: RENDERED)
+              content(format: RENDERED)
               slug
               date
               featuredImage {
@@ -376,5 +396,5 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
       },
     }
   );
-  return data?.user.posts.edges.map((edge: any) => mapPost(edge.node));
+  return data?.user.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
 }
