@@ -42,7 +42,7 @@ export function FeaturedPostCard({ post }: FeaturedPostCardProps) {
             </span>
           </Link>
         </h2>
-        <p className="mt-4 text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: post.excerpt }} />
+        <div className="mt-4 text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: post.excerpt }} />
         <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
           <Link href={`/author/${post.author.slug}`} className="flex items-center gap-2 transition-colors hover:text-foreground">
             <Avatar className="h-8 w-8">
