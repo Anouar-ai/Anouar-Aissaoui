@@ -30,7 +30,7 @@ function mapPost(postData: any): Post {
         id,
         title,
         slug,
-        excerpt: excerpt?.replace(/<[^>]+>/g, '') || '',
+        excerpt: excerpt || '',
         content,
         image: featuredImage?.node?.sourceUrl || 'https://picsum.photos/seed/default/1200/800',
         imageHint: featuredImage?.node?.altText || 'placeholder image',
@@ -112,6 +112,7 @@ export async function getPostBySlug(slug: string): Promise<Post | undefined> {
                 title
                 slug
                 content
+                excerpt
                 date
                 featuredImage {
                     node {
