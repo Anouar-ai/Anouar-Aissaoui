@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import { Suspense, useEffect, useState } from 'react';
@@ -28,7 +29,11 @@ function SearchResults() {
       try {
         const llmResults = await blogSearchWithLlm({
           query,
-          blogPosts: allPosts.map(p => ({ title: p.title, excerpt: p.excerpt, content: p.content })),
+          blogPosts: allPosts.map(p => ({ 
+              title: p.title, 
+              excerpt: p.excerpt, 
+              pSEODescription: p.seo.pSEODescription || '' 
+            })),
         });
         
         // Filter posts with relevance score > 0.5 and sort by score
@@ -128,3 +133,5 @@ export default function SearchPage() {
     </Suspense>
   )
 }
+
+    

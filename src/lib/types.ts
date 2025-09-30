@@ -1,3 +1,4 @@
+
 export interface Author {
   id: string;
   name: string;
@@ -22,6 +23,7 @@ export interface Category {
 export interface SEO {
     title: string;
     metaDesc: string;
+    pSEODescription?: string;
 }
 
 export interface Post {
@@ -38,3 +40,5 @@ export interface Post {
   tags: Tag[];
   seo: SEO;
 }
+
+    

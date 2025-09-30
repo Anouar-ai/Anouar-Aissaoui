@@ -1,5 +1,8 @@
+
+
 import type { Post, Category, Tag, Author } from './types';
 import { PlaceHolderImages } from './placeholder-images';
+import { generatePSEODescription } from '@/ai/flows/generate-p-seo-description';
 
 const API_URL = 'https://dev-anouarweb.pantheonsite.io/graphql';
 
@@ -23,11 +26,20 @@ async function fetchAPI(query: string, { variables }: { variables?: any } = {}) 
     return json.data;
 }
 
-function mapPost(postData: any, index: number = 0): Post {
+async function mapPost(postData: any, index: number = 0): Promise<Post> {
     const { id, title, slug, excerpt, content, date, featuredImage, author, categories, tags, seo } = postData;
     const category = categories?.edges[0]?.node || { name: 'Uncategorized', slug: 'uncategorized' };
 
     const placeholderImage = PlaceHolderImages.find(p => p.id === `post-${(index % 8) + 1}`) || PlaceHolderImages[0];
+    
+    let pSEODescription = '';
+    try {
+        const result = await generatePSEODescription({ title, content });
+        pSEODescription = result.pSEODescription;
+    } catch (e) {
+        console.error(`Failed to generate pSEO description for post "${title}":`, e);
+    }
+
 
     return {
         id,
@@ -53,7 +65,8 @@ function mapPost(postData: any, index: number = 0): Post {
         tags: tags?.edges.map((edge: any) => edge.node) || [],
         seo: {
             title: seo?.title || title,
-            metaDesc: seo?.metaDesc || excerpt || '',
+            metaDesc: seo?.metaDesc || pSEODescription,
+            pSEODescription,
         }
     };
 }
@@ -113,7 +126,11 @@ export async function getPosts(): Promise<Post[]> {
             }
         }
     `);
-    return data?.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
+    
+    const posts = await Promise.all(
+        data?.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
+    );
+    return posts;
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
@@ -301,7 +318,11 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
       },
     }
   );
-  return data?.category.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
+
+    const posts = await Promise.all(
+        data?.category.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
+    );
+    return posts;
 }
 
 export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
@@ -356,7 +377,11 @@ export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
       },
     }
   );
-  return data?.tag.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
+  
+  const posts = await Promise.all(
+    data?.tag.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
+    );
+  return posts;
 }
 
 
@@ -412,5 +437,11 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
       },
     }
   );
-  return data?.user.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index));
+  
+  const posts = await Promise.all(
+    data?.user.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
+  );
+  return posts;
 }
+
+    
