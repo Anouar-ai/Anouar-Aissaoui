@@ -41,11 +41,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="max-w-3xl mx-auto py-8">
+    <article className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <Link href={`/category/${post.category.slug}`}>
-            <Badge variant="default" className="text-sm font-medium mb-2">{post.category.name}</Badge>
-        </Link>
+        {post.category && (
+          <Link href={`/category/${post.category.slug}`}>
+              <Badge variant="default" className="text-sm font-medium mb-2">{post.category.name}</Badge>
+          </Link>
+        )}
         <h1 className="font-headline text-4xl md:text-5xl font-bold leading-tight tracking-tighter mb-4">
           {post.title}
         </h1>
@@ -64,33 +66,38 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </header>
       
-      <div className="overflow-hidden rounded-lg border shadow-md mb-8">
-        <Image
-          src={post.image}
-          alt={post.title}
-          width={1200}
-          height={675}
-          className="w-full h-auto object-cover"
-          priority
-          data-ai-hint={post.imageHint}
-        />
-      </div>
-
-      <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-headline prose-p:font-body prose-a:text-primary hover:prose-a:text-accent prose-a:transition-colors">
-        {/* In a real app, you would parse markdown here */}
-        <p>{post.content}</p>
-      </div>
-
-      <div className="mt-8 pt-8 border-t">
-        <h3 className="text-lg font-semibold mb-2">Tags</h3>
-        <div className="flex flex-wrap gap-2">
-            {post.tags.map(tag => (
-                <Link key={tag.id} href={`/tag/${tag.slug}`}>
-                    <Badge variant="secondary" className="transition-colors hover:bg-accent">{tag.name}</Badge>
-                </Link>
-            ))}
+      {post.image && (
+        <div className="overflow-hidden rounded-lg border shadow-md mb-8">
+            <Image
+            src={post.image}
+            alt={post.title}
+            width={1200}
+            height={675}
+            className="w-full h-auto object-cover"
+            priority
+            data-ai-hint={post.imageHint}
+            />
         </div>
-      </div>
+      )}
+
+      <div 
+        className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-headline prose-p:font-body prose-a:text-primary hover:prose-a:text-accent prose-a:transition-colors"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+       />
+
+
+      {post.tags.length > 0 && (
+        <div className="mt-8 pt-8 border-t">
+            <h3 className="text-lg font-semibold mb-2">Tags</h3>
+            <div className="flex flex-wrap gap-2">
+                {post.tags.map(tag => (
+                    <Link key={tag.id} href={`/tag/${tag.slug}`}>
+                        <Badge variant="secondary" className="transition-colors hover:bg-accent">{tag.name}</Badge>
+                    </Link>
+                ))}
+            </div>
+        </div>
+      )}
     </article>
   );
 }

@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { blogSearchWithLlm } from '@/ai/flows/blog-search-llm';
 import { BlogPostCard } from '@/components/blog/blog-post-card';
 import { getPosts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,19 +11,14 @@ type SearchPageProps = {
 
 async function SearchResults({ query }: { query: string }) {
   const allPosts = await getPosts();
+
+  const lowercasedQuery = query.toLowerCase();
   
-  const relevantPosts = await blogSearchWithLlm({
-    query: query,
-    blogPosts: allPosts.map(p => ({ title: p.title, excerpt: p.excerpt, content: p.content })),
-  });
-  
-  const filteredAndSortedPosts = relevantPosts
-    .filter(p => p.relevanceScore > 0.5)
-    .sort((a, b) => b.relevanceScore - a.relevanceScore);
-  
-  const results = filteredAndSortedPosts.map(relevantPost => {
-      return allPosts.find(p => p.title === relevantPost.title);
-  }).filter((p): p is NonNullable<typeof p> => p !== undefined);
+  const results = allPosts.filter(post => 
+    post.title.toLowerCase().includes(lowercasedQuery) ||
+    post.excerpt.toLowerCase().includes(lowercasedQuery) ||
+    post.content.toLowerCase().includes(lowercasedQuery)
+  );
 
   if (results.length === 0) {
     return <p className="text-center text-lg text-muted-foreground">No results found for "{query}".</p>;

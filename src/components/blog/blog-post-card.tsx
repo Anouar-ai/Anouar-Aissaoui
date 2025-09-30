@@ -12,24 +12,28 @@ interface BlogPostCardProps {
 export function BlogPostCard({ post }: BlogPostCardProps) {
   return (
     <article className="group">
-      <Link href={`/blog/${post.slug}`}>
-        <div className="overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md">
-          <Image
-            src={post.image}
-            alt={post.title}
-            width={600}
-            height={400}
-            className="h-auto w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            data-ai-hint={post.imageHint}
-          />
-        </div>
-      </Link>
+      {post.image && (
+        <Link href={`/blog/${post.slug}`}>
+          <div className="overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md">
+            <Image
+              src={post.image}
+              alt={post.title}
+              width={600}
+              height={400}
+              className="h-auto w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              data-ai-hint={post.imageHint}
+            />
+          </div>
+        </Link>
+      )}
       <div className="mt-4">
-        <div className="flex items-center gap-2">
-            <Link href={`/category/${post.category.slug}`}>
-                <Badge variant="outline" className="text-sm font-medium transition-colors hover:bg-accent">{post.category.name}</Badge>
-            </Link>
-        </div>
+        {post.category && (
+            <div className="flex items-center gap-2">
+                <Link href={`/category/${post.category.slug}`}>
+                    <Badge variant="outline" className="text-sm font-medium transition-colors hover:bg-accent">{post.category.name}</Badge>
+                </Link>
+            </div>
+        )}
         <h2 className="mt-2 font-headline text-2xl font-semibold leading-tight tracking-tight text-foreground">
           <Link href={`/blog/${post.slug}`}>
             <span className="bg-gradient-to-r from-primary to-accent bg-[length:0%_3px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 group-hover:bg-[length:100%_3px]">
