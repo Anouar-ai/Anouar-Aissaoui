@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Alegreya } from 'next/font/google';
+import { Alegreya, Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/layout/header';
@@ -18,6 +18,12 @@ const alegreya = Alegreya({
   variable: '--font-alegreya',
 });
 
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,12 +34,13 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
-          alegreya.variable
+          alegreya.variable,
+          inter.variable
         )}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
