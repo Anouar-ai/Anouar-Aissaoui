@@ -24,7 +24,7 @@ async function fetchAPI(query: string, { variables }: { variables?: any } = {}) 
 }
 
 function mapPost(postData: any, index: number = 0): Post {
-    const { id, title, slug, excerpt, content, date, featuredImage, author, categories, tags } = postData;
+    const { id, title, slug, excerpt, content, date, featuredImage, author, categories, tags, seo } = postData;
     const category = categories?.edges[0]?.node || { name: 'Uncategorized', slug: 'uncategorized' };
 
     const placeholderImage = PlaceHolderImages.find(p => p.id === `post-${(index % 8) + 1}`) || PlaceHolderImages[0];
@@ -51,6 +51,10 @@ function mapPost(postData: any, index: number = 0): Post {
             slug: category.slug,
         },
         tags: tags?.edges.map((edge: any) => edge.node) || [],
+        seo: {
+            title: seo?.title || title,
+            metaDesc: seo?.metaDesc || excerpt || '',
+        }
     };
 }
 
@@ -99,6 +103,10 @@ export async function getPosts(): Promise<Post[]> {
                               slug
                             }
                           }
+                        }
+                        seo {
+                          title
+                          metaDesc
                         }
                     }
                 }
@@ -151,6 +159,10 @@ export async function getPostBySlug(slug: string): Promise<Post | undefined> {
                       slug
                     }
                   }
+                }
+                seo {
+                  title
+                  metaDesc
                 }
             }
         }

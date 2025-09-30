@@ -18,6 +18,11 @@ export interface Category {
   slug: string;
 }
 
+export interface SEO {
+    title: string;
+    metaDesc: string;
+}
+
 export interface Post {
   id: string;
   slug: string;
@@ -30,4 +35,5 @@ export interface Post {
   author: Author;
   category: Category;
   tags: Tag[];
+  seo: SEO;
 }

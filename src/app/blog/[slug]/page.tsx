@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
         };
     }
     return {
-        title: post.title,
-        description: post.excerpt,
+        title: post.seo.title,
+        description: post.seo.metaDesc,
     };
 }
 
