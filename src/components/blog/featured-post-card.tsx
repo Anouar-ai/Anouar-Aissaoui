@@ -35,13 +35,13 @@ export function FeaturedPostCard({ post }: FeaturedPostCardProps) {
                 </Link>
             </div>
         )}
-        <h2 className="mt-2 font-headline text-3xl font-semibold leading-tight tracking-tight text-foreground lg:text-4xl">
+        <h3 className="mt-2 font-headline text-3xl font-semibold leading-tight tracking-tight text-foreground lg:text-4xl">
           <Link href={`/blog/${post.slug}`}>
             <span className="bg-gradient-to-r from-primary to-accent bg-[length:0%_3px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 group-hover:bg-[length:100%_3px]">
               {post.title}
             </span>
           </Link>
-        </h2>
+        </h3>
         <div className="mt-4 text-base text-muted-foreground" dangerouslySetInnerHTML={{ __html: post.excerpt }} />
         <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
           <Link href={`/author/${post.author.slug}`} className="flex items-center gap-2 transition-colors hover:text-foreground">
