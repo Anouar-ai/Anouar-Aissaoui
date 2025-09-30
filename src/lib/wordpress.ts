@@ -65,7 +65,7 @@ async function mapPost(postData: any, index: number = 0): Promise<Post> {
         tags: tags?.edges.map((edge: any) => edge.node) || [],
         seo: {
             title: seo?.title || title,
-            metaDesc: seo?.metaDesc || pSEODescription,
+            metaDesc: pSEODescription || seo?.metaDesc,
             pSEODescription,
         }
     };
