@@ -81,7 +81,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       )}
 
       <div 
-        className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-headline prose-p:font-body prose-a:text-primary hover:prose-a:text-accent prose-a:transition-colors"
+        className="prose prose-lg dark:prose-invert max-w-none prose-a:text-primary hover:prose-a:text-accent prose-a:transition-colors"
         dangerouslySetInnerHTML={{ __html: post.content }}
        />
 
