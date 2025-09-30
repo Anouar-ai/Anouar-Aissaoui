@@ -71,6 +71,17 @@ async function mapPost(postData: any, index: number = 0): Promise<Post> {
     };
 }
 
+async function processPostsWithRateLimit(edges: any[]): Promise<Post[]> {
+    const posts: Post[] = [];
+    for (const [index, edge] of edges.entries()) {
+        const post = await mapPost(edge.node, index);
+        posts.push(post);
+        // Wait for 1 second before the next iteration to respect API rate limits
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return posts;
+}
+
 export async function getPosts(): Promise<Post[]> {
     const data = await fetchAPI(`
         query AllPosts {
@@ -127,14 +138,11 @@ export async function getPosts(): Promise<Post[]> {
         }
     `);
     
-    const posts: Post[] = [];
-    if (data?.posts.edges) {
-        for (const [index, edge] of data.posts.edges.entries()) {
-            const post = await mapPost(edge.node, index);
-            posts.push(post);
-        }
+    if (!data?.posts.edges) {
+        return [];
     }
-    return posts;
+
+    return processPostsWithRateLimit(data.posts.edges);
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | undefined> {
@@ -323,14 +331,10 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
     }
   );
 
-    const posts: Post[] = [];
-    if (data?.category.posts.edges) {
-        for (const [index, edge] of data.category.posts.edges.entries()) {
-            const post = await mapPost(edge.node, index);
-            posts.push(post);
-        }
+    if (!data?.category.posts.edges) {
+        return [];
     }
-    return posts;
+    return processPostsWithRateLimit(data.category.posts.edges);
 }
 
 export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
@@ -386,14 +390,10 @@ export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
     }
   );
   
-  const posts: Post[] = [];
-    if (data?.tag.posts.edges) {
-        for (const [index, edge] of data.tag.posts.edges.entries()) {
-            const post = await mapPost(edge.node, index);
-            posts.push(post);
-        }
-    }
-  return posts;
+  if (!data?.tag.posts.edges) {
+    return [];
+  }
+  return processPostsWithRateLimit(data.tag.posts.edges);
 }
 
 
@@ -450,14 +450,8 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
     }
   );
   
-  const posts: Post[] = [];
-    if (data?.user.posts.edges) {
-        for (const [index, edge] of data.user.posts.edges.entries()) {
-            const post = await mapPost(edge.node, index);
-            posts.push(post);
-        }
+    if (!data?.user.posts.edges) {
+        return [];
     }
-  return posts;
+    return processPostsWithRateLimit(data.user.posts.edges);
 }
-
-    
