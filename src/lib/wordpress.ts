@@ -127,9 +127,13 @@ export async function getPosts(): Promise<Post[]> {
         }
     `);
     
-    const posts = await Promise.all(
-        data?.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
-    );
+    const posts: Post[] = [];
+    if (data?.posts.edges) {
+        for (const [index, edge] of data.posts.edges.entries()) {
+            const post = await mapPost(edge.node, index);
+            posts.push(post);
+        }
+    }
     return posts;
 }
 
@@ -319,9 +323,13 @@ export async function getPostsByCategory(categorySlug: string): Promise<Post[]> 
     }
   );
 
-    const posts = await Promise.all(
-        data?.category.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
-    );
+    const posts: Post[] = [];
+    if (data?.category.posts.edges) {
+        for (const [index, edge] of data.category.posts.edges.entries()) {
+            const post = await mapPost(edge.node, index);
+            posts.push(post);
+        }
+    }
     return posts;
 }
 
@@ -378,9 +386,13 @@ export async function getPostsByTag(tagSlug: string): Promise<Post[]> {
     }
   );
   
-  const posts = await Promise.all(
-    data?.tag.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
-    );
+  const posts: Post[] = [];
+    if (data?.tag.posts.edges) {
+        for (const [index, edge] of data.tag.posts.edges.entries()) {
+            const post = await mapPost(edge.node, index);
+            posts.push(post);
+        }
+    }
   return posts;
 }
 
@@ -438,9 +450,13 @@ export async function getPostsByAuthor(authorSlug: string): Promise<Post[]> {
     }
   );
   
-  const posts = await Promise.all(
-    data?.user.posts.edges.map((edge: any, index: number) => mapPost(edge.node, index))
-  );
+  const posts: Post[] = [];
+    if (data?.user.posts.edges) {
+        for (const [index, edge] of data.user.posts.edges.entries()) {
+            const post = await mapPost(edge.node, index);
+            posts.push(post);
+        }
+    }
   return posts;
 }
 
