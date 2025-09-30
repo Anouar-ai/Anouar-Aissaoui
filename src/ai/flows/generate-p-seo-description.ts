@@ -29,7 +29,7 @@ const pSEODescriptionPrompt = ai.definePrompt({
   
   Blog Post Title: {{{title}}}
   
-  Blog Post Content (HTML):
+  Blog Post Content:
   ---
   {{{content}}}
   ---
@@ -64,12 +64,12 @@ const generatePSEODescriptionFlow = ai.defineFlow(
     outputSchema: GeneratePSEODescriptionOutputSchema,
   },
   async (input) => {
-    // Strip HTML tags from content to provide cleaner text to the model
-    const strippedContent = input.content.replace(/<[^>]*>?/gm, '');
+    // Strip HTML tags and truncate to prevent token limit errors
+    const processedContent = input.content.replace(/<[^>]*>?/gm, '').substring(0, 4000);
 
     const {output} = await pSEODescriptionPrompt({
         title: input.title,
-        content: strippedContent
+        content: processedContent
     });
     return output!;
   }
