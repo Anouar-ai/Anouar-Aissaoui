@@ -14,8 +14,8 @@ const BlogSearchWithLlmInputSchema = z.object({
   query: z.string().describe('The search query to find relevant blog posts.'),
   blogPosts: z.array(z.object({
     title: z.string().describe('The title of the blog post.'),
+    pSEODescription: z.string().describe('An AI-generated summary of the blog post content optimized for SEO.'),
     excerpt: z.string().describe('A short excerpt of the blog post.'),
-    content: z.string().describe('Full content of the blog post.'),
   })).describe('An array of blog posts to search through.'),
 });
 export type BlogSearchWithLlmInput = z.infer<typeof BlogSearchWithLlmInputSchema>;
@@ -40,13 +40,16 @@ const blogSearchPrompt = ai.definePrompt({
   For each blog post, you should determine a relevance score between 0 and 1, where 1 is highly relevant and 0 is not relevant.
   Return an array of blog posts with their title, excerpt, and relevance score to the query.
 
+  Prioritize the pSEODescription for relevance, but also consider the title and excerpt.
+
   Search Query: {{{query}}}
 
   Blog Posts:
   {{#each blogPosts}}
   Title: {{{this.title}}}
   Excerpt: {{{this.excerpt}}}
-  Content: {{{this.content}}}
+  pSEODescription: {{{this.pSEODescription}}}
+  ---
   {{/each}}
   `,
 });
