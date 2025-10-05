@@ -35,10 +35,10 @@ function CheckoutForm() {
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
+      redirect: 'if_required',
       confirmParams: {
-        return_url: `${window.location.origin}/account/orders`,
         receipt_email: email,
       },
     });
@@ -49,9 +49,9 @@ function CheckoutForm() {
         description: error.message,
         variant: "destructive",
       });
-    } else {
+    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       clearCart();
-      // The user will be redirected to the return_url by Stripe.
+      router.push('/account/orders');
     }
 
     setIsLoading(false);
