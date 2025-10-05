@@ -49,6 +49,7 @@ function CheckoutForm() {
         description: error.message || "An unexpected error occurred.",
         variant: "destructive",
       });
+      setIsLoading(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       localStorage.setItem('purchase', JSON.stringify({
         items: cartItems,
@@ -57,9 +58,10 @@ function CheckoutForm() {
       }));
       clearCart();
       router.push('/checkout/success');
+    } else {
+        setIsLoading(false);
     }
 
-    setIsLoading(false);
   };
   
   return (
@@ -108,9 +110,6 @@ export default function CheckoutPage() {
   }
   
   if (cartCount === 0 && !clientSecret) {
-    // This case will be hit if the user navigates here with an empty cart.
-    // It shouldn't show a redirecting message indefinitely.
-    // The useEffect will handle the redirect.
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Your cart is empty. Redirecting to homepage...</p>
