@@ -3,11 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Star, Zap, LifeBuoy } from 'lucide-react';
 import { products } from '@/lib/products';
-import { reviews } from '@/lib/reviews';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useCart } from '@/hooks/use-cart';
 
 function ProductCard({ product }: { product: typeof products[0] }) {
@@ -55,63 +53,8 @@ function ProductCard({ product }: { product: typeof products[0] }) {
 
 
 export default function Home() {
-  const features = [
-    {
-      icon: <Zap className="h-8 w-8 text-accent" />,
-      title: 'Instant Delivery',
-      description: 'Get your license keys and download links immediately after purchase.',
-    },
-    {
-      icon: <ShieldCheck className="h-8 w-8 text-accent" />,
-      title: 'Official Licenses',
-      description: 'All products are 100% genuine with 1 year of official updates.',
-    },
-    {
-      icon: <LifeBuoy className="h-8 w-8 text-accent" />,
-      title: 'Premium Support',
-      description: 'Access to our expert support team to help you with any issues.',
-    },
-  ];
-
   return (
     <div className="flex flex-col">
-      <section className="bg-white dark:bg-gray-900/50 py-20 sm:py-28">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-primary font-headline">
-            Supercharge Your Website Today
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
-            Get official licenses for the best digital products with instant delivery and premium support.
-          </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="#products">
-                Browse Products <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline">
-              Learn More
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="flex justify-center items-center mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section id="products" className="py-16 sm:py-24 bg-white dark:bg-gray-900/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
