@@ -92,17 +92,33 @@ export default function CheckoutPage() {
         }
       })
     } else {
-        router.push('/');
+        // Only redirect if there's no pending purchase in localStorage
+        const purchaseData = localStorage.getItem('purchase');
+        if (!purchaseData) {
+            router.push('/');
+        }
     }
   }, [cartCount, cartTotal, router]);
 
 
-  if (cartCount === 0 || !clientSecret) {
+  if (cartCount === 0 && !localStorage.getItem('purchase')) {
+    return (
+        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+            <p>Your cart is empty. Redirecting to homepage...</p>
+        </div>
+    );
+  }
+  
+  if (!clientSecret && cartCount > 0) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Loading checkout...</p>
         </div>
     );
+  }
+
+  if (!clientSecret) {
+    return null; // Don't render anything while figuring out state
   }
   
   const total = cartTotal;

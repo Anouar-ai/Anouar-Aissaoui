@@ -24,7 +24,7 @@ export default function SuccessPage() {
     const purchaseData = localStorage.getItem('purchase');
     if (purchaseData) {
       setPurchase(JSON.parse(purchaseData));
-      localStorage.removeItem('purchase');
+      localStorage.removeItem('purchase'); // Clear it after reading
     } else {
       router.push('/');
     }
