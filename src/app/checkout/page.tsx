@@ -46,7 +46,7 @@ function CheckoutForm() {
     if (error) {
       toast({
         title: "Payment failed",
-        description: error.message,
+        description: error.message || "An unexpected error occurred.",
         variant: "destructive",
       });
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
@@ -83,6 +83,7 @@ export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount } = useCart();
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (cartCount > 0) {
@@ -90,35 +91,36 @@ export default function CheckoutPage() {
         if(data.clientSecret) {
           setClientSecret(data.clientSecret);
         }
-      })
+        setLoading(false);
+      });
     } else {
-        // Only redirect if there's no pending purchase in localStorage
-        const purchaseData = localStorage.getItem('purchase');
-        if (!purchaseData) {
-            router.push('/');
-        }
+        router.push('/');
     }
   }, [cartCount, cartTotal, router]);
 
 
-  if (cartCount === 0 && !localStorage.getItem('purchase')) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
-            <p>Your cart is empty. Redirecting to homepage...</p>
-        </div>
-    );
-  }
-  
-  if (!clientSecret && cartCount > 0) {
+  if (loading) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Loading checkout...</p>
         </div>
     );
   }
+  
+  if (cartCount === 0) {
+    return (
+        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+            <p>Your cart is empty. Redirecting...</p>
+        </div>
+    );
+  }
 
   if (!clientSecret) {
-    return null; // Don't render anything while figuring out state
+    return (
+        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+            <p>Could not initialize payment. Please try again.</p>
+        </div>
+    );
   }
   
   const total = cartTotal;
