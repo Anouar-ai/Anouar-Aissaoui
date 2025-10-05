@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import { products } from '@/lib/products';
 import ProductClient from './product-client';
