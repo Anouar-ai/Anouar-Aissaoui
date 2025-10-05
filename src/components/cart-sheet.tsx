@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Plus, Minus, ShoppingCart, CreditCard } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, CreditCard, Loader2 } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,21 +35,17 @@ export function CartSheet({ children }: { children: ReactNode }) {
         throw new Error('Stripe.js has not loaded yet.');
       }
       
-      const productIds = cartItems.map(item => item.product.id);
-
-      const response = await fetch('/api/buy-now', {
+      const response = await fetch('/api/cart-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // This assumes your buy-now endpoint can handle multiple products.
-        // We may need to create a new endpoint for cart checkout.
-        // For now, let's just checkout the first item as a demonstration
-        body: JSON.stringify({ productId: cartItems[0].product.id, quantity: cartItems[0].quantity }),
+        body: JSON.stringify({ cartItems }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session.');
+        const errorBody = await response.json();
+        throw new Error(errorBody.error || 'Failed to create checkout session.');
       }
 
       const { sessionId } = await response.json();
@@ -64,7 +60,8 @@ export function CartSheet({ children }: { children: ReactNode }) {
         description: error.message || 'Could not initiate checkout.',
         variant: 'destructive',
       });
-      setIsLoading(false);
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -129,10 +126,13 @@ export function CartSheet({ children }: { children: ReactNode }) {
             <Separator className="bg-slate-800" />
             <SheetFooter className="p-6 bg-slate-950/80">
               <div className="w-full space-y-4">
-                <div className="flex justify-between font-semibold text-white">
+                <div className="flex justify-between font-semibold text-white text-lg">
                   <span>Subtotal</span>
                   <span>${cartTotal.toFixed(2)}</span>
                 </div>
+                 <Button onClick={handleCheckout} className="w-full" size="lg" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="animate-spin" /> : <><CreditCard className="mr-2" /> Proceed to Checkout</>}
+                </Button>
               </div>
             </SheetFooter>
           </>
