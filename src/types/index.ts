@@ -12,6 +12,7 @@ export type Product = {
   };
   reviews: number;
   rating: number;
+  downloadUrl: string;
 };
 
 export type CartItem = {

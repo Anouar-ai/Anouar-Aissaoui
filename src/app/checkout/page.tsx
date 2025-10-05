@@ -20,7 +20,7 @@ function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
-  const { clearCart, cartTotal } = useCart();
+  const { cartItems, cartTotal } = useCart();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -50,8 +50,12 @@ function CheckoutForm() {
         variant: "destructive",
       });
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      clearCart();
-      router.push('/account/orders');
+      localStorage.setItem('purchase', JSON.stringify({
+        items: cartItems,
+        total: cartTotal,
+        date: new Date().toISOString(),
+      }));
+      router.push('/checkout/success');
     }
 
     setIsLoading(false);
@@ -81,7 +85,9 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cartCount === 0) {
-      router.push('/');
+        if (!localStorage.getItem('purchase')) {
+            router.push('/');
+        }
     } else {
       createPaymentIntent(cartTotal).then(data => {
         if(data.clientSecret) {

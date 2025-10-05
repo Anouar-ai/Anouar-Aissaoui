@@ -20,6 +20,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('elementor-pro'),
     reviews: 1258,
     rating: 4.9,
+    downloadUrl: '#',
   },
   {
     id: 'generatepress-premium',
@@ -31,6 +32,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('generatepress-premium'),
     reviews: 972,
     rating: 5.0,
+    downloadUrl: '#',
   },
   {
     id: 'generateblocks-pro',
@@ -42,6 +44,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('generateblocks-pro'),
     reviews: 450,
     rating: 4.8,
+    downloadUrl: '#',
   },
   {
     id: 'rank-math-pro',
@@ -53,6 +56,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('rank-math-pro'),
     reviews: 2340,
     rating: 4.9,
+    downloadUrl: '#',
   },
   {
     id: 'wp-rocket-premium',
@@ -64,5 +68,6 @@ export const products: Product[] = [
     image: getPlaceholderImage('wp-rocket-premium'),
     reviews: 3105,
     rating: 4.9,
+    downloadUrl: '#',
   },
 ];
