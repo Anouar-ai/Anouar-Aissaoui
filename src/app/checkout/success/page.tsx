@@ -2,80 +2,55 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Download, Loader2, XCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { CheckCircle, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useCart } from '@/hooks/use-cart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type DownloadLink = {
   name: string;
   url: string;
 };
 
+type Purchase = {
+    downloadUrls: DownloadLink[];
+    total: number;
+}
+
 function SuccessContent() {
-  const [downloadLinks, setDownloadLinks] = useState<DownloadLink[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { clearCart } = useCart();
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  const router = useRouter();
 
   useEffect(() => {
-    if (sessionId) {
-      const verifySession = async () => {
-        try {
-          const res = await fetch(`/api/verify-session?session_id=${sessionId}`);
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || 'Failed to verify session.');
-          }
-          const data = await res.json();
-          if (data.downloadUrls) {
-            setDownloadLinks(data.downloadUrls);
-            clearCart(); // Clear cart only after successful verification
-          } else {
-            throw new Error('No download URLs found.');
-          }
-        } catch (err: any) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      verifySession();
+    const purchaseData = localStorage.getItem('purchase');
+    if (purchaseData) {
+      try {
+        setPurchase(JSON.parse(purchaseData));
+        // Clear the item so it's not shown again on refresh
+        localStorage.removeItem('purchase');
+      } catch (e) {
+        console.error("Failed to parse purchase data", e);
+        router.push('/');
+      }
     } else {
-        // No session ID in URL
-        setError("No payment session ID found. Your payment may not have completed.");
-        setIsLoading(false);
+      // No purchase data, redirect to home
+      router.push('/');
     }
-  }, [sessionId, clearCart]);
+    setIsLoading(false);
+  }, [router]);
 
   const renderContent = () => {
     if (isLoading) {
       return (
         <div className="flex flex-col items-center justify-center gap-2 p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Verifying your payment...</p>
+          <p className="text-muted-foreground">Loading your order details...</p>
         </div>
       );
     }
 
-    if (error) {
-      return (
-         <CardContent>
-          <div className="text-center">
-            <div className="mx-auto w-fit bg-red-100 dark:bg-red-900/50 rounded-full p-3">
-              <XCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
-            </div>
-            <CardTitle className="text-2xl md:text-3xl font-bold mt-4 font-headline">Payment Verification Failed</CardTitle>
-            <CardDescription className="text-destructive mt-2">{error}</CardDescription>
-          </div>
-         </CardContent>
-      );
-    }
-
-    if (downloadLinks) {
+    if (purchase) {
       return (
         <>
             <CardHeader className="text-center">
@@ -88,7 +63,7 @@ function SuccessContent() {
             <CardContent className="space-y-6">
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="font-semibold text-lg">Your Downloads</h3>
-                  {downloadLinks.map((link) => (
+                  {purchase.downloadUrls.map((link) => (
                     <div key={link.name} className="flex justify-between items-center p-3 bg-secondary rounded-md">
                       <p className="font-medium">{link.name}</p>
                       <Button asChild variant="outline" size="sm">
@@ -128,7 +103,7 @@ function SuccessContent() {
 
 export default function SuccessPage() {
     return (
-        <Suspense fallback={<div className="text-center p-16">Loading payment details...</div>}>
+        <Suspense fallback={<div className="text-center p-16">Loading...</div>}>
             <SuccessContent />
         </Suspense>
     )
