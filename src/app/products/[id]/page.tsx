@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { Star, Plus, Minus } from 'lucide-react';
 import { products } from '@/lib/products';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/hooks/use-cart';
 import { Badge } from '@/components/ui/badge';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const params = useParams();
   
   const product = products.find((p) => p.id === params.id);
 
