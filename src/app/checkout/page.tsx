@@ -25,8 +25,6 @@ function CheckoutForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
 
-  const total = cartTotal;
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!stripe || !elements) {
@@ -59,9 +57,8 @@ function CheckoutForm() {
       clearCart();
       router.push('/checkout/success');
     } else {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-
   };
   
   return (
@@ -71,15 +68,14 @@ function CheckoutForm() {
         <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
       
-      <PaymentElement />
+      <PaymentElement id="payment-element" />
       
       <Button disabled={isLoading || !stripe || !elements} type="submit" size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4">
-        {isLoading ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+        {isLoading ? 'Processing...' : `Pay $${cartTotal.toFixed(2)}`}
       </Button>
     </form>
   )
 }
-
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount } = useCart();
@@ -96,10 +92,9 @@ export default function CheckoutPage() {
         setLoading(false);
       });
     } else {
-        router.push('/');
+      router.push('/');
     }
   }, [cartCount, cartTotal, router]);
-
 
   if (loading) {
     return (
@@ -109,12 +104,8 @@ export default function CheckoutPage() {
     );
   }
   
-  if (cartCount === 0 && !loading) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
-            <p>Your cart is empty. Redirecting to homepage...</p>
-        </div>
-    );
+  if (!loading && cartCount === 0) {
+    return null; // Don't render anything while redirecting
   }
 
   if (!clientSecret) {
@@ -125,8 +116,6 @@ export default function CheckoutPage() {
     );
   }
   
-  const total = cartTotal;
-
   const options = {
     clientSecret,
     appearance: {
@@ -179,7 +168,7 @@ export default function CheckoutPage() {
                     <Separator />
                      <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>${cartTotal.toFixed(2)}</span>
                     </div>
                 </CardContent>
             </Card>

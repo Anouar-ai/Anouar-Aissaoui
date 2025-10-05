@@ -41,8 +41,7 @@ export default function SuccessPage() {
   }
 
   if (!purchase) {
-    // This part should not be reached if the logic works, but it's a safeguard.
-    // The redirect happens within the useEffect.
+    // This will be true while the router is redirecting.
     return null;
   }
 
