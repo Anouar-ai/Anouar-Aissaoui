@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/use-cart';
 import { BuyNowButton } from '@/components/buy-now-button';
 import type { Product } from '@/types';
+import React from 'react';
 
 function ProductClient({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
@@ -94,7 +95,8 @@ function ProductClient({ product }: { product: Product }) {
 }
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = products.find((p) => p.id === params.id);
+  const resolvedParams = React.use(params);
+  const product = products.find((p) => p.id === resolvedParams.id);
 
   if (!product) {
     notFound();
