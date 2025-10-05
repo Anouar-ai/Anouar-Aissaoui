@@ -83,7 +83,7 @@ export default function SuccessPage() {
             <Separator />
             <div className="text-center">
                 <Button asChild>
-                    <Link href="/account/orders">View Your Orders</Link>
+                    <Link href="/">Continue Shopping</Link>
                 </Button>
             </div>
         </CardContent>

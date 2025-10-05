@@ -16,7 +16,6 @@ import {
 
 const navLinks = [
   { href: '/#products', label: 'Products' },
-  { href: '/account/orders', label: 'My Orders' },
 ];
 
 export function Header() {
