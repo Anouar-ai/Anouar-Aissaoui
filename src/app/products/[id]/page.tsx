@@ -21,6 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: 'Product Not Found',
     }
   }
+  
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
   return {
     title: `${product.name} | Digital Product Hub`,
@@ -31,6 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: product.name,
       description: product.longDescription,
+      url: `${siteUrl}/products/${product.id}`,
+      siteName: 'Digital Product Hub',
       images: [
         {
           url: product.image.url,
@@ -41,6 +45,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ],
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description: product.longDescription,
+      images: [product.image.url],
+    }
   }
 }
 
