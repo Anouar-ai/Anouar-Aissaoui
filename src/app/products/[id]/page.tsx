@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Star, Plus, Minus } from 'lucide-react';
@@ -22,7 +22,7 @@ function ProductClient({ product }: { product: Product }) {
   
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-      <Card className="overflow-hidden bg-secondary/30">
+      <Card className="overflow-hidden bg-secondary/30 border-none">
         <CardContent className="p-0">
           <div className="aspect-video relative">
             <Image
@@ -95,7 +95,7 @@ function ProductClient({ product }: { product: Product }) {
 }
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const resolvedParams = React.use(params);
+  const resolvedParams = use(params);
   const product = products.find((p) => p.id === resolvedParams.id);
 
   if (!product) {
