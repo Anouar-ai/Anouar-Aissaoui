@@ -110,6 +110,8 @@ export default function CheckoutPage() {
   }
   
   if (cartCount === 0 && !clientSecret) {
+    // This case will be hit if the cart is empty on initial load.
+    // The useEffect will redirect, but this provides immediate feedback.
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Your cart is empty. Redirecting to homepage...</p>
