@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -21,29 +21,61 @@ type Purchase = {
 function SuccessContent() {
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // This effect runs only on the client side
-    const purchaseData = localStorage.getItem('purchase');
-    if (purchaseData) {
+    const sessionId = searchParams.get('session_id');
+    const localPurchaseData = localStorage.getItem('purchase');
+
+    const verifyPurchase = async (sessionId: string) => {
       try {
-        const parsedData = JSON.parse(purchaseData);
-        setPurchase(parsedData);
-        // Important: Clear the item from storage so it's not shown again on refresh or revisit
-        localStorage.removeItem('purchase');
-      } catch (e) {
-        console.error("Failed to parse purchase data from localStorage", e);
-        // If data is malformed, redirect to home
-        router.push('/');
+        const res = await fetch('/api/verify-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to verify purchase.');
+        }
+
+        const data = await res.json();
+        setPurchase(data);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setIsLoading(false);
       }
-    } else {
-      // If there's no purchase data, the user likely navigated here directly.
-      // Redirect them to the homepage.
+    };
+    
+    const loadLocalPurchase = () => {
+        try {
+            const parsedData = JSON.parse(localPurchaseData!);
+            setPurchase(parsedData);
+            localStorage.removeItem('purchase'); // Clean up
+        } catch (e) {
+            setError("Failed to parse purchase data.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (sessionId) {
+        // New flow: Verify Stripe Checkout session
+        verifyPurchase(sessionId);
+    } else if (localPurchaseData) {
+        // Old flow: Load data from local storage (for embedded checkout)
+        loadLocalPurchase();
+    }
+    else {
+      // No session or local data, redirect home
       router.push('/');
     }
-    setIsLoading(false);
-  }, [router]);
+
+  }, [searchParams, router]);
 
   if (isLoading) {
     return (
@@ -53,11 +85,30 @@ function SuccessContent() {
       </div>
     );
   }
+  
+  if (error) {
+     return (
+      <div className="container mx-auto px-4 py-8 md:py-16 flex flex-col items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md mx-auto w-full">
+            <CardHeader>
+                <CardTitle className='text-destructive'>Verification Failed</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">{error}</p>
+                <p className="text-muted-foreground mt-2">Please contact support if you believe this is an error.</p>
+            </CardContent>
+            <CardFooter>
+                 <Button asChild className="w-full">
+                    <Link href="/">Return to Homepage</Link>
+                </Button>
+            </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
   if (!purchase) {
-    // This state is briefly hit before the redirect in useEffect completes.
-    // Can also show a message if needed, but redirect is cleaner.
-    return null;
+    return null; // Should be handled by redirect in useEffect
   }
 
   return (

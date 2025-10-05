@@ -2,16 +2,20 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
-import { Star, Plus, Minus } from 'lucide-react';
+import { Star, Plus, Minus, Loader2 } from 'lucide-react';
 import { products } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCart } from '@/hooks/use-cart';
+import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
-  const { addItem } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const params = useParams();
   
   const product = products.find((p) => p.id === params.id);
@@ -20,9 +24,42 @@ export default function ProductPage() {
     notFound();
   }
 
-  const handleAddToCart = () => {
-    addItem(product, quantity);
-    setQuantity(1);
+  const handleBuyNow = async () => {
+    setIsLoading(true);
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Stripe.js has not loaded yet.');
+      }
+
+      const response = await fetch('/api/buy-now', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId: product.id, quantity }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json();
+        throw new Error(errorBody.error || 'Failed to create checkout session.');
+      }
+
+      const { sessionId } = await response.json();
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Could not initiate checkout. Please try again.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,8 +117,8 @@ export default function ProductPage() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" onClick={handleAddToCart} className="flex-1">
-              Add to Cart
+            <Button size="lg" onClick={handleBuyNow} className="flex-1" disabled={isLoading}>
+              {isLoading ? <Loader2 className="animate-spin" /> : 'Buy Now'}
             </Button>
           </div>
           
