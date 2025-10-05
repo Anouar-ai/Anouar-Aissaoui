@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { BuyNowButton } from '@/components/buy-now-button';
 
-function ProductCard({ product }: { product: typeof products[0] }) {
+function ProductCard({ product, priority = false }: { product: typeof products[0], priority?: boolean }) {
   return (
     <GlowCard glowColor="purple" className="p-0" customSize={true}>
       <Card className="flex flex-col overflow-hidden transition-all duration-300 w-full h-full bg-transparent border-none">
@@ -23,6 +23,7 @@ function ProductCard({ product }: { product: typeof products[0] }) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint={product.image.hint}
+                priority={priority}
               />
             </div>
           </Link>
@@ -66,8 +67,8 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, index) => (
+              <ProductCard key={product.id} product={product} priority={index === 0} />
             ))}
           </div>
         </div>
