@@ -127,40 +127,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
-      <section className="py-16 sm:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline">Loved by Developers Worldwide</h2>
-            <p className="mt-3 max-w-xl mx-auto text-lg text-muted-foreground">
-              Don't just take our word for it. Here's what our customers say.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {reviews.map((review, index) => (
-              <Card key={index} className="flex flex-col">
-                <CardContent className="p-6 flex-grow">
-                  <div className="flex items-center mb-4">
-                    <Avatar>
-                      <AvatarImage src={review.avatarUrl} alt={review.name} data-ai-hint={review.avatarHint} />
-                      <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-4">
-                      <p className="font-semibold">{review.name}</p>
-                      <div className="flex items-center text-yellow-500">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-current" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground italic">"{review.review}"</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
