@@ -17,6 +17,7 @@ type Props = {
   params: { id: string }
 }
 
+// This function now correctly runs on the server.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = products.find((p) => p.id === params.id);
   if (!product) {
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+// This new component contains all the client-side logic.
 function ProductClient({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
@@ -151,7 +153,8 @@ function ProductClient({ product }: { product: Product }) {
   )
 }
 
-// The page is now a Server Component
+// The main page export is now a Server Component.
+// It does not have the "use client" directive.
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find((p) => p.id === params.id);
 
