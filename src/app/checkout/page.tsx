@@ -107,7 +107,7 @@ export default function CheckoutPage() {
     );
   }
   
-  if (cartCount === 0) {
+  if (cartCount === 0 && !clientSecret) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Your cart is empty. Redirecting...</p>
