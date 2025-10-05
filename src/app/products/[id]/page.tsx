@@ -1,9 +1,12 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { products } from '@/lib/products';
 import ProductClient from './product-client';
 import type { Metadata } from 'next';
 import React from 'react';
 import { slugify } from '@/lib/utils';
+import { ChevronRight } from 'lucide-react';
+import { RelatedProducts } from '@/components/related-products';
 
 type Props = {
   params: { id: string }
@@ -96,6 +99,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         }
       ]
   }
+  
+  const categorySlug = slugify(product.category);
 
   return (
     <>
@@ -107,9 +112,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <div className="container mx-auto px-4 py-8 md:py-16">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="flex items-center text-sm text-muted-foreground mb-6">
+          <Link href="/" className="hover:text-primary">Home</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <Link href={`/category/${categorySlug}`} className="hover:text-primary">{product.category}</Link>
+          <ChevronRight className="h-4 w-4 mx-1" />
+          <span className="text-foreground">{product.name}</span>
+        </div>
         <ProductClient product={product} />
       </div>
+      <RelatedProducts currentProductId={product.id} category={product.category} />
     </>
   );
 }
