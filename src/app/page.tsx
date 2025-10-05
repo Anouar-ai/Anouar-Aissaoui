@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GlowCard } from '@/components/ui/spotlight-card';
-import { BuyNowButton } from '@/components/buy-now-button';
 import React from 'react';
 
 function ProductCard({ product, priority = false }: { product: typeof products[0], priority?: boolean }) {
@@ -48,7 +47,9 @@ function ProductCard({ product, priority = false }: { product: typeof products[0
         </CardContent>
         <CardFooter className="p-6 pt-0 flex justify-between items-center">
           <p className="text-2xl font-bold text-primary">${product.price}</p>
-          <BuyNowButton productId={product.id} />
+          <Button asChild variant="outline">
+             <Link href={`/products/${product.id}`}>View Details</Link>
+          </Button>
         </CardFooter>
       </Card>
     </GlowCard>
