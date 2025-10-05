@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { BuyNowButton } from '@/components/buy-now-button';
-import React, { Suspense } from 'react';
+import React from 'react';
 
 function ProductCard({ product, priority = false }: { product: typeof products[0], priority?: boolean }) {
   return (
