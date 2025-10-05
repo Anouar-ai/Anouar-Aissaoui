@@ -1,5 +1,4 @@
 
-"use client"
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
@@ -8,56 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GlowCard } from '@/components/ui/spotlight-card';
-import { reviews } from '@/lib/reviews';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import { BuyNowButton } from '@/components/buy-now-button';
 
 function ProductCard({ product }: { product: typeof products[0] }) {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleBuyNow = async () => {
-    setIsLoading(true);
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe.js has not loaded yet.');
-      }
-
-      const response = await fetch('/api/buy-now', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productId: product.id, quantity: 1 }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session.');
-      }
-
-      const { sessionId } = await response.json();
-
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Could not initiate checkout. Please try again.',
-        variant: 'destructive',
-      });
-      setIsLoading(false);
-    }
-  };
-  
   return (
     <GlowCard glowColor="purple" className="p-0" customSize={true}>
       <Card className="flex flex-col overflow-hidden transition-all duration-300 w-full h-full bg-transparent border-none">
@@ -94,9 +46,7 @@ function ProductCard({ product }: { product: typeof products[0] }) {
         </CardContent>
         <CardFooter className="p-6 pt-0 flex justify-between items-center">
           <p className="text-2xl font-bold text-primary">${product.price}</p>
-          <Button onClick={handleBuyNow} disabled={isLoading}>
-            {isLoading ? <Loader2 className="animate-spin" /> : 'Buy Now'}
-          </Button>
+          <BuyNowButton productId={product.id} />
         </CardFooter>
       </Card>
     </GlowCard>
