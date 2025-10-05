@@ -8,62 +8,124 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+function CheckoutForm() {
+    const stripe = useStripe();
+    const elements = useElements();
+    const { clearCart, cartItems, cartTotal } = useCart();
+    const router = useRouter();
+    const { toast } = useToast();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        setIsLoading(true);
+
+        const { error, paymentIntent } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                // Return URL is not used for direct confirmation, but good to have
+                return_url: `${window.location.origin}/checkout/success`,
+            },
+            redirect: "if_required" // This is key to prevent immediate redirection
+        });
+        
+        if (error) {
+            setMessage(error.message || "An unexpected error occurred.");
+            setIsLoading(false);
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+             toast({
+                title: "Payment Successful!",
+                description: "Your order is confirmed. Redirecting...",
+            });
+
+            // Save purchase details for success page
+            localStorage.setItem('purchase', JSON.stringify({ items: cartItems, total: cartTotal }));
+
+            clearCart();
+            
+            // Manually redirect to success page
+            router.push('/checkout/success');
+        } else {
+             setIsLoading(false);
+        }
+    };
+    
+    return (
+        <form id="payment-form" onSubmit={handleSubmit}>
+            <PaymentElement id="payment-element" />
+            <Button disabled={isLoading || !stripe || !elements} id="submit" className="w-full mt-6 text-lg">
+                <span id="button-text">
+                    {isLoading ? "Processing..." : `Pay $${cartTotal.toFixed(2)}`}
+                </span>
+            </Button>
+            {message && <div id="payment-message" className="text-red-500 mt-2 text-sm">{message}</div>}
+        </form>
+    );
+}
+
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount } = useCart();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const [clientSecret, setClientSecret] = useState('');
 
   useEffect(() => {
-    // Redirect if the cart is empty and we're not in the middle of a checkout process
-    if (cartCount === 0 && !isLoading) {
+    // Redirect if the cart is empty
+    if (cartCount === 0) {
       toast({
         title: 'Your cart is empty',
         description: 'Redirecting to homepage...',
       });
       router.push('/');
     }
-  }, [cartCount, router, isLoading, toast]);
-  
-  const handleCheckout = async () => {
-    setIsLoading(true);
-    toast({
-        title: "Redirecting to Checkout",
-        description: "Please wait while we prepare your secure payment page.",
-    });
+  }, [cartCount, router, toast]);
 
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cartItems }),
-      });
-      
-      const session = await res.json();
-
-      if (res.status !== 200 || !session.url) {
-        throw new Error(session.error || 'Failed to create checkout session.');
-      }
-      
-      // Redirect the top-level window to break out of the iframe
-      if (window.top) {
-        window.top.location.href = session.url;
-      } else {
-        window.location.href = session.url;
-      }
-
-    } catch (error: any) {
-      console.error("Checkout error:", error);
-      toast({
-        title: 'Checkout Error',
-        description: error.message || 'An unexpected error occurred during checkout.',
-        variant: 'destructive',
-      });
-      setIsLoading(false);
+  useEffect(() => {
+    if (cartCount > 0) {
+        // Create PaymentIntent as soon as the page loads with cart items
+        fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cartItems }),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.clientSecret) {
+                setClientSecret(data.clientSecret)
+            } else {
+                toast({
+                    title: 'Error',
+                    description: data.error || 'Failed to initialize payment.',
+                    variant: 'destructive',
+                })
+            }
+        });
     }
+  }, [cartItems, cartCount, toast]);
+
+  const options: StripeElementsOptions = {
+    clientSecret,
+    appearance: {
+      theme: 'stripe',
+    },
   };
 
   if (cartCount === 0) {
@@ -119,23 +181,18 @@ export default function CheckoutPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Ready to Complete Your Order?</CardTitle>
+            <CardTitle>Complete Your Payment</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-6">
-              You will be redirected to our secure payment partner, Stripe, to complete your purchase using your credit card.
-            </p>
-            <Button 
-              onClick={handleCheckout} 
-              disabled={isLoading}
-              size="lg" 
-              className="w-full text-lg"
-            >
-              {isLoading ? 'Processing...' : `Proceed to Secure Payment`}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
-              Your security is our priority. All transactions are encrypted and processed securely by Stripe.
-            </p>
+            {clientSecret ? (
+              <Elements options={options} stripe={stripePromise}>
+                <CheckoutForm />
+              </Elements>
+            ) : (
+              <div className="text-center">
+                  <p>Initializing payment form...</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

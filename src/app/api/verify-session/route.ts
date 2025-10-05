@@ -2,12 +2,9 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import crypto from "crypto";
 import { products } from "@/lib/products";
+import { tokens } from "@/lib/token-store"; // Updated import
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-
-// In a real application, this should be a persistent store like Redis or a database.
-// This is for demonstration purposes only.
-const tokens = new Map<string, { productIds: string[]; expires: number }>();
 
 function generateAndStoreTokens(productIds: string[]): {name: string, url: string}[] {
   const downloadUrls: {name: string, url: string}[] = [];
@@ -30,20 +27,20 @@ function generateAndStoreTokens(productIds: string[]): {name: string, url: strin
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const sessionId = searchParams.get("session_id");
+  const payment_intent = searchParams.get("payment_intent");
 
-  if (!sessionId) {
-    return NextResponse.json({ error: "Missing session ID" }, { status: 400 });
+  if (!payment_intent) {
+    return NextResponse.json({ error: "Missing payment_intent" }, { status: 400 });
   }
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const intent = await stripe.paymentIntents.retrieve(payment_intent);
 
-    if (session.payment_status !== "paid") {
+    if (intent.status !== "succeeded") {
       return NextResponse.json({ error: "Payment not successful" }, { status: 402 });
     }
 
-    const productIds = session.metadata?.productIds?.split(',') || [];
+    const productIds = intent.metadata?.productIds?.split(',') || [];
     if (productIds.length === 0) {
         return NextResponse.json({ error: "No products found in order" }, { status: 404 });
     }
@@ -53,12 +50,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ downloadUrls });
 
   } catch (error: any) {
-    console.error("Error verifying session:", error);
-    return NextResponse.json({ error: "Invalid session ID or server error" }, { status: 500 });
+    console.error("Error verifying payment intent:", error);
+    return NextResponse.json({ error: "Invalid payment intent or server error" }, { status: 500 });
   }
 }
 
-// Export the map to be accessible by the download route
-// This is NOT production-safe. Use a database in a real app.
-export { tokens };
 export const dynamic = "force-dynamic";

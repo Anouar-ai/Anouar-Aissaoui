@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { tokens } from "../verify-session/route";
+import { tokens } from "@/lib/token-store"; // Updated import
 import { products } from "@/lib/products";
 
 export async function GET(req: Request, { params }: { params: { token: string } }) {

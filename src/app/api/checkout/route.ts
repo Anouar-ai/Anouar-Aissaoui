@@ -13,43 +13,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Transform cart items into Stripe's line_items format
-    const line_items = cartItems.map((item) => ({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: item.product.name,
-          images: [item.product.image.url],
-          description: item.product.description,
-        },
-        unit_amount: Math.round(item.product.price * 100), // amount in cents
-      },
-      quantity: item.quantity,
-    }));
-    
-    // Store product IDs in metadata for later verification and download link generation
-    const productIds = cartItems.map(item => item.product.id).join(',');
+    const totalAmount = cartItems.reduce(
+        (total, item) => total + item.product.price * item.quantity, 0
+    );
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: line_items,
-      mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
-      metadata: {
-        productIds: productIds,
-      },
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(totalAmount * 100), // amount in cents
+        currency: "usd",
+        automatic_payment_methods: {
+            enabled: true,
+        },
+         // Attach product IDs to metadata for your records
+        metadata: {
+            productIds: cartItems.map(item => item.product.id).join(','),
+        },
+    });
+    
+    return NextResponse.json({
+        clientSecret: paymentIntent.client_secret,
     });
 
-    if (!session.url) {
-        return NextResponse.json({ error: "Failed to create checkout session URL." }, { status: 500 });
-    }
-
-    return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error("Error creating checkout session:", error);
+    console.error("Error creating payment intent:", error);
     return NextResponse.json(
-      { error: "Failed to create checkout session." },
+      { error: "Failed to create payment intent." },
       { status: 500 }
     );
   }
