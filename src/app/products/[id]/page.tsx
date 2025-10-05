@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { loadStripe } from '@stripe/stripe-js';
+import { useCart } from '@/hooks/use-cart';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -17,6 +18,7 @@ export default function ProductPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const params = useParams();
+  const { addItem } = useCart();
   
   const product = products.find((p) => p.id === params.id);
 
@@ -62,18 +64,21 @@ export default function ProductPage() {
     }
   };
 
+  const handleAddToCart = () => {
+    addItem(product, quantity);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
         <Card className="overflow-hidden bg-secondary/30">
           <CardContent className="p-0">
-            <div className="aspect-video">
+            <div className="aspect-video relative">
               <Image
                 src={product.image.url}
                 alt={product.name}
-                width={800}
-                height={450}
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
                 data-ai-hint={product.image.hint}
                 priority
               />
@@ -117,12 +122,15 @@ export default function ProductPage() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" onClick={handleBuyNow} className="flex-1" disabled={isLoading}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Buy Now'}
+            <Button size="lg" onClick={handleAddToCart} variant="outline" className="flex-1">
+              Add to Cart
             </Button>
           </div>
+           <Button size="lg" onClick={handleBuyNow} className="w-full" disabled={isLoading}>
+              {isLoading ? <Loader2 className="animate-spin" /> : 'Buy Now'}
+            </Button>
           
-          <div className="border-t border-border/50 pt-6">
+          <div className="border-t border-border/50 pt-6 mt-6">
             <h3 className="text-lg font-semibold mb-2">License Details:</h3>
             <ul className="list-disc list-inside text-muted-foreground space-y-1">
               <li>1 Year of Official Updates</li>
