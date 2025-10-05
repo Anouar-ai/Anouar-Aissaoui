@@ -4,7 +4,7 @@ import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -109,9 +109,7 @@ export default function CheckoutPage() {
     );
   }
   
-  if (cartCount === 0 && !clientSecret) {
-    // This case will be hit if the cart is empty on initial load.
-    // The useEffect will redirect, but this provides immediate feedback.
+  if (cartCount === 0 && !loading) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Your cart is empty. Redirecting to homepage...</p>
