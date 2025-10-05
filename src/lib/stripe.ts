@@ -1,5 +1,8 @@
 'use server';
 
+// This file is no longer used by the new Stripe Checkout flow.
+// It can be safely removed or kept for reference.
+
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {

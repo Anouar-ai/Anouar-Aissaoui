@@ -2,126 +2,67 @@
 
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { createPaymentIntent } from '@/lib/stripe';
 import { useToast } from '@/hooks/use-toast';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
-
-function CheckoutForm() {
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const { cartItems, cartTotal, clearCart } = useCart();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: 'if_required',
-      confirmParams: {
-        receipt_email: email,
-      },
-    });
-
-    if (error) {
-      toast({
-        title: "Payment failed",
-        description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      localStorage.setItem('purchase', JSON.stringify({
-        items: cartItems,
-        total: cartTotal,
-        date: new Date().toISOString(),
-      }));
-      clearCart();
-      router.push('/checkout/success');
-    } else {
-      setIsLoading(false);
-    }
-  };
-  
-  return (
-    <form id="payment-form" onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
-        <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
-      
-      <PaymentElement id="payment-element" />
-      
-      <Button disabled={isLoading || !stripe || !elements} type="submit" size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4">
-        {isLoading ? 'Processing...' : `Pay $${cartTotal.toFixed(2)}`}
-      </Button>
-    </form>
-  )
-}
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount } = useCart();
   const router = useRouter();
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (cartCount > 0) {
-      createPaymentIntent(cartTotal).then(data => {
-        if(data.clientSecret) {
-          setClientSecret(data.clientSecret);
-        }
-        setLoading(false);
-      });
-    } else {
+    if (cartCount === 0 && !isLoading) {
       router.push('/');
     }
-  }, [cartCount, cartTotal, router]);
-
-  if (loading) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
-            <p>Loading checkout...</p>
-        </div>
-    );
-  }
+  }, [cartCount, router, isLoading]);
   
-  if (!loading && cartCount === 0) {
-    return null; // Don't render anything while redirecting
-  }
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+      if (!stripe) throw new Error('Stripe failed to initialize.');
+      
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cartItems }),
+      });
+      
+      const session = await res.json();
+      if (session.error) {
+        throw new Error(session.error);
+      }
 
-  if (!clientSecret) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
-            <p>Could not initialize payment. Please try again.</p>
-        </div>
-    );
-  }
-  
-  const options = {
-    clientSecret,
-    appearance: {
-      theme: 'stripe' as const,
-    },
+      const result = await stripe.redirectToCheckout({ sessionId: session.id });
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to redirect to checkout.');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Checkout Error',
+        description: error.message || 'An unexpected error occurred during checkout.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    }
   };
+
+  if (cartCount === 0) {
+    return (
+        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+            <p>Redirecting to homepage...</p>
+        </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -129,12 +70,23 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <Card>
           <CardHeader>
-            <CardTitle>Payment Information</CardTitle>
+            <CardTitle>Ready to Complete Your Order?</CardTitle>
           </CardHeader>
           <CardContent>
-            <Elements options={options} stripe={stripePromise}>
-              <CheckoutForm />
-            </Elements>
+            <p className="text-muted-foreground mb-6">
+              You will be redirected to our secure payment partner, Stripe, to complete your purchase.
+            </p>
+            <Button 
+              onClick={handleCheckout} 
+              disabled={isLoading}
+              size="lg" 
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4"
+            >
+              {isLoading ? 'Processing...' : `Proceed to Secure Payment`}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4 text-center">
+              Your security is our priority. All transactions are encrypted and processed by Stripe.
+            </p>
           </CardContent>
         </Card>
         

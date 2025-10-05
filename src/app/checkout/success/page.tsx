@@ -1,49 +1,53 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, Download } from 'lucide-react';
+import { CheckCircle, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import type { CartItem } from '@/types';
-import Image from 'next/image';
+import { useCart } from '@/hooks/use-cart';
 
-interface Purchase {
-  items: CartItem[];
-  total: number;
-  date: string;
-}
-
-export default function SuccessPage() {
-  const router = useRouter();
-  const [purchase, setPurchase] = useState<Purchase | null>(null);
+function SuccessContent() {
+  const [downloadLinks, setDownloadLinks] = useState<{name: string, url: string}[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const sessionId = useSearchParams().get('session_id');
+  const { clearCart } = useCart();
 
   useEffect(() => {
-    const purchaseData = localStorage.getItem('purchase');
-    if (purchaseData) {
-      setPurchase(JSON.parse(purchaseData));
-      localStorage.removeItem('purchase'); // Clear it after reading
+    if (sessionId) {
+      let isMounted = true;
+      (async () => {
+        try {
+          const res = await fetch(`/api/verify-session?session_id=${sessionId}`);
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to verify payment session.');
+          }
+          const data = await res.json();
+          if (isMounted) {
+            setDownloadLinks(data.downloadUrls);
+            clearCart(); // Clear cart only after successful verification
+          }
+        } catch (e: any) {
+          if (isMounted) {
+            setError(e.message);
+          }
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
+        }
+      })();
+      return () => {
+        isMounted = false;
+      }
     } else {
-      router.push('/');
+        setIsLoading(false);
+        setError("No session ID found. Please contact support if you completed a payment.");
     }
-    setIsLoading(false);
-  }, [router]);
-
-  if (isLoading) {
-    return (
-        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
-            <p>Loading your order details...</p>
-        </div>
-    );
-  }
-
-  if (!purchase) {
-    // This will be true while the router is redirecting.
-    return null;
-  }
+  }, [sessionId, clearCart]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -56,42 +60,49 @@ export default function SuccessPage() {
           <p className="text-muted-foreground">Your order has been confirmed and your downloads are ready.</p>
         </CardHeader>
         <CardContent className="space-y-6">
-            <Separator />
-            <div className="space-y-4">
-                <h3 className="font-semibold">Your Items</h3>
-                {purchase.items.map(({ product, quantity }) => (
-                    <div key={product.id} className="flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                            <div className="relative h-14 w-14 rounded-md overflow-hidden">
-                                <Image src={product.image.url} alt={product.name} fill className="object-cover" data-ai-hint={product.image.hint} />
-                            </div>
-                            <div>
-                                <p className="font-medium">{product.name}</p>
-                                <p className="text-sm text-muted-foreground">Qty: {quantity}</p>
-                            </div>
-                        </div>
-                        <Button asChild variant="outline" size="sm">
-                            <a href={product.downloadUrl} download>
-                                <Download className="mr-2 h-4 w-4" />
-                                Download
-                            </a>
-                        </Button>
-                    </div>
-                ))}
+          {isLoading && (
+             <div className="flex flex-col items-center justify-center gap-2 p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Verifying your payment...</p>
             </div>
-            <Separator />
-            <div className="flex justify-between font-bold text-lg">
-                <span>Total Paid</span>
-                <span>${purchase.total.toFixed(2)}</span>
+          )}
+          {error && (
+            <div className="text-center text-red-500 bg-red-100 p-4 rounded-md">
+              <p><strong>Error:</strong> {error}</p>
             </div>
-            <Separator />
-            <div className="text-center">
-                <Button asChild>
-                    <Link href="/">Continue Shopping</Link>
-                </Button>
+          )}
+          {downloadLinks.length > 0 && (
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold text-lg">Your Downloads</h3>
+              {downloadLinks.map((link) => (
+                <div key={link.name} className="flex justify-between items-center p-3 bg-secondary rounded-md">
+                  <p className="font-medium">{link.name}</p>
+                  <Button asChild variant="outline" size="sm">
+                    <a href={link.url}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </a>
+                  </Button>
+                </div>
+              ))}
             </div>
+          )}
+          <div className="text-center pt-4 border-t">
+            <Button asChild>
+              <Link href="/">Continue Shopping</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
+}
+
+
+export default function SuccessPage() {
+    return (
+        <Suspense fallback={<div className="text-center p-16">Loading...</div>}>
+            <SuccessContent />
+        </Suspense>
+    )
 }
