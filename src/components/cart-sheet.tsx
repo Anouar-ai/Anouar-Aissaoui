@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,18 +16,67 @@ import {
 import { Separator } from './ui/separator';
 import type { ReactNode } from 'react';
 import { ScrollArea } from './ui/scroll-area';
+import { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { useToast } from '@/hooks/use-toast';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export function CartSheet({ children }: { children: ReactNode }) {
   const { cartItems, removeItem, updateQuantity, cartCount, cartTotal } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) {
+        throw new Error('Stripe.js has not loaded yet.');
+      }
+      
+      const productIds = cartItems.map(item => item.product.id);
+
+      const response = await fetch('/api/buy-now', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // This assumes your buy-now endpoint can handle multiple products.
+        // We may need to create a new endpoint for cart checkout.
+        // For now, let's just checkout the first item as a demonstration
+        body: JSON.stringify({ productId: cartItems[0].product.id, quantity: cartItems[0].quantity }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session.');
+      }
+
+      const { sessionId } = await response.json();
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Could not initiate checkout.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
+      <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg bg-slate-950 border-slate-800">
         <SheetHeader className="px-6">
-          <SheetTitle>Shopping Cart ({cartCount})</SheetTitle>
+          <SheetTitle className="text-white">Shopping Cart ({cartCount})</SheetTitle>
         </SheetHeader>
-        <Separator />
+        <Separator className="bg-slate-800" />
         {cartCount > 0 ? (
           <>
             <ScrollArea className="flex-1">
@@ -35,7 +84,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                 {cartItems.map(({ product, quantity }) => (
                   <div key={product.id} className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="relative h-16 w-16 overflow-hidden rounded-md">
+                      <div className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-800">
                         <Image
                           src={product.image.url}
                           alt={product.name}
@@ -45,24 +94,24 @@ export function CartSheet({ children }: { children: ReactNode }) {
                         />
                       </div>
                       <div>
-                        <Link href={`/products/${product.id}`} className="font-semibold hover:text-primary">
+                        <Link href={`/products/${product.id}`} className="font-semibold text-white hover:text-primary">
                           {product.name}
                         </Link>
-                        <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
+                        <p className="text-sm text-slate-400">${product.price.toFixed(2)}</p>
                         <div className="mt-2 flex items-center">
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-6 w-6"
+                            className="h-6 w-6 bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
                             onClick={() => updateQuantity(product.id, quantity - 1)}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          <span className="w-8 text-center">{quantity}</span>
+                          <span className="w-8 text-center text-white">{quantity}</span>
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-6 w-6"
+                            className="h-6 w-6 bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
                             onClick={() => updateQuantity(product.id, quantity + 1)}
                           >
                             <Plus className="h-4 w-4" />
@@ -70,33 +119,30 @@ export function CartSheet({ children }: { children: ReactNode }) {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => removeItem(product.id)}>
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white" onClick={() => removeItem(product.id)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
               </div>
             </ScrollArea>
-            <Separator />
-            <SheetFooter className="p-6 bg-secondary/50">
+            <Separator className="bg-slate-800" />
+            <SheetFooter className="p-6 bg-slate-950/80">
               <div className="w-full space-y-4">
-                <div className="flex justify-between font-semibold">
+                <div className="flex justify-between font-semibold text-white">
                   <span>Subtotal</span>
                   <span>${cartTotal.toFixed(2)}</span>
                 </div>
-                <Button asChild size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link href="/checkout">Proceed to Checkout</Link>
-                </Button>
               </div>
             </SheetFooter>
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-             <div className="rounded-full border border-dashed p-4">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground" />
+             <div className="rounded-full border border-dashed border-slate-700 p-4">
+              <ShoppingCart className="h-12 w-12 text-slate-500" />
             </div>
-            <h3 className="text-xl font-semibold">Your cart is empty</h3>
-            <p className="text-muted-foreground">Add some products to get started.</p>
+            <h3 className="text-xl font-semibold text-white">Your cart is empty</h3>
+            <p className="text-slate-400">Add some products to get started.</p>
           </div>
         )}
       </SheetContent>
