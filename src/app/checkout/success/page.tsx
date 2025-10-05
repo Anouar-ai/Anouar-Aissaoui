@@ -19,6 +19,7 @@ interface Purchase {
 export default function SuccessPage() {
   const router = useRouter();
   const [purchase, setPurchase] = useState<Purchase | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const purchaseData = localStorage.getItem('purchase');
@@ -28,14 +29,21 @@ export default function SuccessPage() {
     } else {
       router.push('/');
     }
+    setIsLoading(false);
   }, [router]);
 
-  if (!purchase) {
+  if (isLoading) {
     return (
         <div className="container mx-auto px-4 py-8 md:py-16 text-center">
             <p>Loading your order details...</p>
         </div>
     );
+  }
+
+  if (!purchase) {
+    // This part should not be reached if the logic works, but it's a safeguard.
+    // The redirect happens within the useEffect.
+    return null;
   }
 
   return (
