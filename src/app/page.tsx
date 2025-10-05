@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/product-card';
 import React from 'react';
 
+export const revalidate = 3600; // Revalidate at most once per hour
 
 export default function Home() {
   return (

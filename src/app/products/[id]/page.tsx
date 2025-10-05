@@ -8,6 +8,8 @@ type Props = {
   params: { id: string }
 }
 
+export const revalidate = 3600; // Revalidate at most once per hour
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = products.find((p) => p.id === params.id);
   if (!product) {
@@ -47,4 +49,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <ProductClient product={product} />
     </div>
   );
+}
+
+// Statically generate these pages at build time
+export async function generateStaticParams() {
+  return products.map((product) => ({
+    id: product.id,
+  }));
 }

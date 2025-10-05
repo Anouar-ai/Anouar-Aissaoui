@@ -4,6 +4,8 @@ import { ProductCard } from '@/components/product-card';
 import { slugify } from '@/lib/utils';
 import React from 'react';
 
+export const revalidate = 3600; // Revalidate at most once per hour
+
 const getCategoryNameFromSlug = (slug: string): string | null => {
     const categoryMap: { [key: string]: string } = {
         'wordpress-plugin': 'WordPress Plugin',
@@ -64,7 +66,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
     );
 }
 
-// Optional: If you want to statically generate these pages at build time
+// Statically generate these pages at build time
 export async function generateStaticParams() {
   const categories = [...new Set(products.map(p => p.category))];
   return categories.map(category => ({
