@@ -9,6 +9,7 @@ import { CartProvider } from '@/context/cart-provider';
 import React, { Suspense } from 'react';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
   title: 'Digital Product Hub',
   description: 'Your one-stop shop for premium digital products.',
 };

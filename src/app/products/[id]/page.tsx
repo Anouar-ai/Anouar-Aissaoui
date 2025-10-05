@@ -1,5 +1,5 @@
 'use client'
-import { useState, use } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Star, Plus, Minus } from 'lucide-react';
@@ -11,6 +11,38 @@ import { useCart } from '@/hooks/use-cart';
 import { BuyNowButton } from '@/components/buy-now-button';
 import type { Product } from '@/types';
 import React from 'react';
+import type { Metadata } from 'next';
+
+type Props = {
+  params: { id: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const product = products.find((p) => p.id === params.id);
+  if (!product) {
+    return {
+      title: 'Product Not Found',
+    }
+  }
+
+  return {
+    title: `${product.name} | Digital Product Hub`,
+    description: product.longDescription,
+    openGraph: {
+      title: product.name,
+      description: product.longDescription,
+      images: [
+        {
+          url: product.image.url,
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+      type: 'website',
+    },
+  }
+}
 
 function ProductClient({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
@@ -19,8 +51,32 @@ function ProductClient({ product }: { product: Product }) {
   const handleAddToCart = () => {
     addItem(product, quantity);
   };
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.longDescription,
+    image: product.image.url,
+    offers: {
+      '@type': 'Offer',
+      price: product.price.toFixed(2),
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating,
+      reviewCount: product.reviews,
+    },
+  };
   
   return (
+    <>
+    <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
       <Card className="overflow-hidden bg-secondary/30 border-none">
         <CardContent className="p-0">
@@ -91,12 +147,13 @@ function ProductClient({ product }: { product: Product }) {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
+// The page is now a Server Component
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const resolvedParams = use(params);
-  const product = products.find((p) => p.id === resolvedParams.id);
+  const product = products.find((p) => p.id === params.id);
 
   if (!product) {
     notFound();
@@ -104,6 +161,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
+      {/* We render the Client Component here and pass the product data as a prop */}
       <ProductClient product={product} />
     </div>
   );
