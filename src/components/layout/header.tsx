@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { ShoppingCart, Menu } from 'lucide-react';
+import React, { Suspense } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/#products', label: 'All Products' },
@@ -74,20 +76,23 @@ export function Header() {
             </Sheet>
           </div>
 
-          <CartSheet>
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
+          <Suspense fallback={<div className="w-9 h-9" />}>
+            <CartSheet>
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
                 <Badge
                   variant="destructive"
-                  className="absolute -right-2 -top-2 h-5 w-5 justify-center rounded-full p-0"
+                  className={cn(
+                      "absolute -right-2 -top-2 h-5 w-5 justify-center rounded-full p-0 transition-opacity",
+                      cartCount > 0 ? "opacity-100" : "opacity-0"
+                  )}
                 >
                   {cartCount}
                 </Badge>
-              )}
-              <span className="sr-only">Shopping Cart</span>
-            </Button>
-          </CartSheet>
+                <span className="sr-only">Shopping Cart</span>
+              </Button>
+            </CartSheet>
+          </Suspense>
         </div>
       </div>
     </header>
