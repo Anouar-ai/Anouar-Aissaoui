@@ -8,33 +8,104 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { createPaymentIntent } from '@/lib/stripe';
+import { useToast } from '@/hooks/use-toast';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
+
+function CheckoutForm() {
+  const stripe = useStripe();
+  const elements = useElements();
+  const router = useRouter();
+  const { clearCart, cartTotal } = useCart();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const total = cartTotal + (cartTotal * 0.08); // with tax
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/account/orders`,
+        receipt_email: email,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Payment failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      clearCart();
+      // The user will be redirected to the return_url by Stripe.
+    }
+
+    setIsLoading(false);
+  };
+  
+  return (
+    <form id="payment-form" onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email Address</Label>
+        <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+      
+      <PaymentElement />
+      
+      <Button disabled={isLoading || !stripe || !elements} type="submit" size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 mt-4">
+        {isLoading ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+      </Button>
+    </form>
+  )
+}
+
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount, clearCart } = useCart();
   const router = useRouter();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     if (cartCount === 0) {
       router.push('/');
+    } else {
+      createPaymentIntent(cartTotal).then(data => {
+        if(data.clientSecret) {
+          setClientSecret(data.clientSecret);
+        }
+      })
     }
-  }, [cartCount, router]);
+  }, [cartCount, cartTotal, router]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // In a real app, you would process the payment here.
-    alert('Payment successful! Your order has been placed.');
-    clearCart();
-    router.push('/account/orders');
-  };
 
-  if (cartCount === 0) {
+  if (cartCount === 0 || !clientSecret) {
     return null; // or a loading spinner
   }
   
   const shipping = 0; // Digital products
   const tax = cartTotal * 0.08; // Example tax
   const total = cartTotal + shipping + tax;
+
+  const options = {
+    clientSecret,
+    appearance: {
+      theme: 'stripe' as const,
+    },
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -45,30 +116,9 @@ export default function CheckoutPage() {
             <CardTitle>Payment Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <form id="payment-form" onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" placeholder="you@example.com" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="card-name">Name on Card</Label>
-                <Input id="card-name" type="text" placeholder="John Doe" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="card-number">Card Number</Label>
-                <Input id="card-number" type="text" placeholder="**** **** **** 1234" required />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expiry">Expiration</Label>
-                  <Input id="expiry" type="text" placeholder="MM/YY" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cvc">CVC</Label>
-                  <Input id="cvc" type="text" placeholder="123" required />
-                </div>
-              </div>
-            </form>
+            <Elements options={options} stripe={stripePromise}>
+              <CheckoutForm />
+            </Elements>
           </CardContent>
         </Card>
         
@@ -113,11 +163,6 @@ export default function CheckoutPage() {
                         <span>${total.toFixed(2)}</span>
                     </div>
                 </CardContent>
-                <CardFooter>
-                    <Button type="submit" form="payment-form" size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                        Pay ${total.toFixed(2)}
-                    </Button>
-                </CardFooter>
             </Card>
         </div>
       </div>
