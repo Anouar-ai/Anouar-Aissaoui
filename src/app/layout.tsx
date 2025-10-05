@@ -24,6 +24,7 @@ export default function RootLayout({
       <body
         className={cn(
           'font-body antialiased flex flex-col min-h-screen bg-background',
+          inter.className,
           inter.variable
         )}
       >
