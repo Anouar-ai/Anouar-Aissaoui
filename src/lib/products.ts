@@ -68,6 +68,6 @@ export const products: Product[] = [
     image: getPlaceholderImage('wp-rocket-premium'),
     reviews: 3105,
     rating: 4.9,
-    downloadUrl: '#',
+    downloadUrl: 'https://wp-rocket.me/',
   },
 ];
