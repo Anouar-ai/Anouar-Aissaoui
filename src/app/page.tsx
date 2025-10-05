@@ -63,14 +63,13 @@ function ProductCard({ product }: { product: typeof products[0] }) {
       <Card className="flex flex-col overflow-hidden transition-all duration-300 w-full h-full bg-transparent border-none">
         <CardHeader className="p-0">
           <Link href={`/products/${product.id}`} className="block group">
-            <div className="aspect-video overflow-hidden">
+            <div className="aspect-video overflow-hidden relative">
               <Image
                 src={product.image.url}
                 alt={product.name}
-                width={600}
-                height={338}
+                fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint={product.image.hint}
               />
             </div>
