@@ -8,8 +8,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/use-cart';
 import { GlowCard } from '@/components/ui/spotlight-card';
-import { reviews } from '@/lib/reviews';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 function ProductCard({ product }: { product: typeof products[0] }) {
   const { addItem } = useCart();
@@ -71,40 +69,6 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      <section id="testimonials" className="py-16 sm:py-24 bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline text-white">What Our Customers Say</h2>
-            <p className="mt-3 max-w-xl mx-auto text-lg text-gray-400">
-              Thousands of developers and entrepreneurs trust us. Here's what they say.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {reviews.map((review, index) => (
-              <Card key={index} className="bg-background/50 border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <Avatar>
-                      <AvatarImage src={review.avatarUrl} alt={review.name} data-ai-hint={review.avatarHint} />
-                      <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-white">{review.name}</p>
-                      <div className="flex items-center text-yellow-500">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-current" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-gray-400">{review.review}</p>
-                </CardContent>
-              </Card>
             ))}
           </div>
         </div>
