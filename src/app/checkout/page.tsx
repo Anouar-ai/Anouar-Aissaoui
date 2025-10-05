@@ -20,7 +20,7 @@ function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
-  const { cartItems, cartTotal } = useCart();
+  const { cartItems, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -55,6 +55,7 @@ function CheckoutForm() {
         total: cartTotal,
         date: new Date().toISOString(),
       }));
+      clearCart();
       router.push('/checkout/success');
     }
 
@@ -79,27 +80,29 @@ function CheckoutForm() {
 
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal, cartCount, clearCart } = useCart();
+  const { cartItems, cartTotal, cartCount } = useCart();
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
-    if (cartCount === 0) {
-        if (!localStorage.getItem('purchase')) {
-            router.push('/');
-        }
-    } else {
+    if (cartCount > 0) {
       createPaymentIntent(cartTotal).then(data => {
         if(data.clientSecret) {
           setClientSecret(data.clientSecret);
         }
       })
+    } else {
+        router.push('/');
     }
   }, [cartCount, cartTotal, router]);
 
 
   if (cartCount === 0 || !clientSecret) {
-    return null; // or a loading spinner
+    return (
+        <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+            <p>Loading checkout...</p>
+        </div>
+    );
   }
   
   const total = cartTotal;

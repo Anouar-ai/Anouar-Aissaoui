@@ -7,7 +7,6 @@ import { CheckCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/hooks/use-cart';
 import type { CartItem } from '@/types';
 import Image from 'next/image';
 
@@ -19,19 +18,17 @@ interface Purchase {
 
 export default function SuccessPage() {
   const router = useRouter();
-  const { clearCart } = useCart();
   const [purchase, setPurchase] = useState<Purchase | null>(null);
 
   useEffect(() => {
     const purchaseData = localStorage.getItem('purchase');
     if (purchaseData) {
       setPurchase(JSON.parse(purchaseData));
-      clearCart();
       localStorage.removeItem('purchase');
     } else {
       router.push('/');
     }
-  }, [router, clearCart]);
+  }, [router]);
 
   if (!purchase) {
     return (
