@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "elementor-pro",
+      "description": "Elementor Pro website builder interface.",
+      "imageUrl": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3ZWJzaXRlJTIwYnVpbGRlcnxlbnwwfHx8fDE3NTk2MzEwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "website builder"
+    },
+    {
+      "id": "generatepress-premium",
+      "description": "GeneratePress Premium theme options.",
+      "imageUrl": "https://images.unsplash.com/photo-1678341859828-bfb1a2bd527a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b3JkcHJlc3MlMjB0aGVtZXxlbnwwfHx8fDE3NTk2MzEwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wordpress theme"
+    },
+    {
+      "id": "generateblocks-pro",
+      "description": "GenerateBlocks Pro block editor showcase.",
+      "imageUrl": "https://images.unsplash.com/photo-1646471210166-eb972e483e48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxibG9jayUyMGVkaXRvcnxlbnwwfHx8fDE3NTk2MzEwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "block editor"
+    },
+    {
+      "id": "rank-math-pro",
+      "description": "Rank Math Pro SEO analysis dashboard.",
+      "imageUrl": "https://images.unsplash.com/photo-1617518016627-d73dd26e8ab0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzZW8lMjBwbHVnaW58ZW58MHx8fHwxNzU5NjMxMDIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "seo plugin"
+    },
+    {
+      "id": "wp-rocket-premium",
+      "description": "WP Rocket Premium caching plugin settings.",
+      "imageUrl": "https://images.unsplash.com/photo-1627612031102-9d6d4fa1a80f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjYWNoaW5nJTIwcGx1Z2lufGVufDB8fHx8MTc1OTYzMTAyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "caching plugin"
+    },
+    {
+      "id": "avatar1",
+      "description": "Avatar of a male customer.",
+      "imageUrl": "https://images.unsplash.com/photo-1601977218317-72e0996ecdfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwZmFjZXxlbnwwfHx8fDE3NTk1NjkwNDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man face"
+    },
+    {
+      "id": "avatar2",
+      "description": "Avatar of a female customer.",
+      "imageUrl": "https://images.unsplash.com/photo-1616002411355-49593fd89721?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMGZhY2V8ZW58MHx8fHwxNzU5NTU5OTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "avatar3",
+      "description": "Avatar of a customer.",
+      "imageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk2MjQ1ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
 }
