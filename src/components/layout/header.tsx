@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -16,6 +17,7 @@ import {
 
 const navLinks = [
   { href: '/#products', label: 'Products' },
+  { href: '/glow-demo', label: 'Glow Demo' },
 ];
 
 export function Header() {
