@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { BuyNowButton } from '@/components/buy-now-button';
+import React, { Suspense } from 'react';
 
 function ProductCard({ product, priority = false }: { product: typeof products[0], priority?: boolean }) {
   return (
@@ -20,7 +21,7 @@ function ProductCard({ product, priority = false }: { product: typeof products[0
                 src={product.image.url}
                 alt={product.name}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint={product.image.hint}
                 priority={priority}
