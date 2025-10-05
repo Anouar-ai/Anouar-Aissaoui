@@ -25,7 +25,7 @@ function CheckoutForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
 
-  const total = cartTotal + (cartTotal * 0.08); // with tax
+  const total = cartTotal;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -96,9 +96,7 @@ export default function CheckoutPage() {
     return null; // or a loading spinner
   }
   
-  const shipping = 0; // Digital products
-  const tax = cartTotal * 0.08; // Example tax
-  const total = cartTotal + shipping + tax;
+  const total = cartTotal;
 
   const options = {
     clientSecret,
@@ -147,14 +145,6 @@ export default function CheckoutPage() {
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Subtotal</span>
                             <span>${cartTotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Shipping</span>
-                            <span>${shipping.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Taxes</span>
-                            <span>${tax.toFixed(2)}</span>
                         </div>
                     </div>
                     <Separator />
