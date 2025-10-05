@@ -25,6 +25,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   const siteUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
+  // Specific metadata for WP Rocket
+  if (product.id === 'wp-rocket-premium') {
+    return {
+      title: 'WP Rocket Premium License | Instant Download | Digital Product Hub',
+      description: `Get WP Rocket Premium with an official license key for just $${product.price.toFixed(2)}. Instantly download the #1 WordPress caching plugin to speed up your website in a few clicks.`,
+      alternates: {
+        canonical: `/products/${product.id}`,
+      },
+       openGraph: {
+        title: 'WP Rocket Premium License | Instant Download',
+        description: `Get the #1 WordPress caching plugin for only $${product.price.toFixed(2)}.`,
+        url: `${siteUrl}/products/${product.id}`,
+        siteName: 'Digital Product Hub',
+        images: [
+          {
+            url: product.image.url,
+            width: 800,
+            height: 600,
+            alt: product.name,
+          },
+        ],
+        type: 'website',
+      },
+       twitter: {
+        card: 'summary_large_image',
+        title: 'WP Rocket Premium License | Instant Download',
+        description: `Get the #1 WordPress caching plugin for only $${product.price.toFixed(2)}.`,
+        images: [product.image.url],
+      }
+    };
+  }
+
   return {
     title: `${product.name} | Digital Product Hub`,
     description: product.longDescription,
