@@ -6,12 +6,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(req: Request) {
   try {
-    const { cartItems } = (await req.json()) as { cartItems: CartItem[] };
+    const body = (await req.json()) as { cartItems: CartItem[] };
+    const { cartItems } = body;
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
+    // Transform cart items into Stripe's line_items format
     const line_items = cartItems.map((item) => ({
       price_data: {
         currency: "usd",
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     }));
     
-    // Store product IDs in metadata for verification
+    // Store product IDs in metadata for later verification and download link generation
     const productIds = cartItems.map(item => item.product.id).join(',');
 
     const session = await stripe.checkout.sessions.create({
