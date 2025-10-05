@@ -20,7 +20,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('elementor-pro'),
     reviews: 1258,
     rating: 4.9,
-    downloadUrl: '/downloads/elementor-pro.zip',
+    downloadUrl: 'elementor-pro.zip',
   },
   {
     id: 'generatepress-premium',
@@ -32,7 +32,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('generatepress-premium'),
     reviews: 972,
     rating: 5.0,
-    downloadUrl: '/downloads/generatepress-premium.zip',
+    downloadUrl: 'generatepress-premium.zip',
   },
   {
     id: 'generateblocks-pro',
@@ -44,7 +44,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('generateblocks-pro'),
     reviews: 450,
     rating: 4.8,
-    downloadUrl: '/downloads/generateblocks-pro.zip',
+    downloadUrl: 'generateblocks-pro.zip',
   },
   {
     id: 'rank-math-pro',
@@ -56,7 +56,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('rank-math-pro'),
     reviews: 2340,
     rating: 4.9,
-    downloadUrl: '/downloads/rank-math-pro.zip',
+    downloadUrl: 'rank-math-pro.zip',
   },
   {
     id: 'wp-rocket-premium',
@@ -68,6 +68,7 @@ export const products: Product[] = [
     image: getPlaceholderImage('wp-rocket-premium'),
     reviews: 3105,
     rating: 4.9,
+    // This is an external link and will be handled as a redirect.
     downloadUrl: 'https://wp-rocket.me/',
   },
 ];

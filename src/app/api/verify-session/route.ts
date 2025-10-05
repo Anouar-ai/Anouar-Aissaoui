@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import crypto from "crypto";
 import { products } from "@/lib/products";
-import { tokens } from "@/lib/token-store"; // Updated import
+import { tokens } from "@/lib/token-store";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -27,20 +27,20 @@ function generateAndStoreTokens(productIds: string[]): {name: string, url: strin
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const payment_intent = searchParams.get("payment_intent");
+  const sessionId = searchParams.get("session_id");
 
-  if (!payment_intent) {
-    return NextResponse.json({ error: "Missing payment_intent" }, { status: 400 });
+  if (!sessionId) {
+    return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
   }
 
   try {
-    const intent = await stripe.paymentIntents.retrieve(payment_intent);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (intent.status !== "succeeded") {
+    if (session.payment_status !== "paid") {
       return NextResponse.json({ error: "Payment not successful" }, { status: 402 });
     }
 
-    const productIds = intent.metadata?.productIds?.split(',') || [];
+    const productIds = session.metadata?.productIds?.split(',') || [];
     if (productIds.length === 0) {
         return NextResponse.json({ error: "No products found in order" }, { status: 404 });
     }
@@ -50,8 +50,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ downloadUrls });
 
   } catch (error: any) {
-    console.error("Error verifying payment intent:", error);
-    return NextResponse.json({ error: "Invalid payment intent or server error" }, { status: 500 });
+    console.error("Error verifying payment session:", error);
+    return NextResponse.json({ error: "Invalid payment session or server error" }, { status: 500 });
   }
 }
 

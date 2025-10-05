@@ -8,125 +8,63 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
-import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-
-function CheckoutForm() {
-    const stripe = useStripe();
-    const elements = useElements();
-    const { clearCart, cartItems, cartTotal } = useCart();
-    const router = useRouter();
-    const { toast } = useToast();
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
-    
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!stripe || !elements) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        const { error, paymentIntent } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                // Return URL is not used for direct confirmation, but good to have
-                return_url: `${window.location.origin}/checkout/success`,
-            },
-            redirect: "if_required" // This is key to prevent immediate redirection
-        });
-        
-        if (error) {
-            setMessage(error.message || "An unexpected error occurred.");
-            setIsLoading(false);
-        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-             toast({
-                title: "Payment Successful!",
-                description: "Your order is confirmed. Redirecting...",
-            });
-
-            // Save purchase details for success page
-            localStorage.setItem('purchase', JSON.stringify({ items: cartItems, total: cartTotal }));
-
-            clearCart();
-            
-            // Manually redirect to success page
-            router.push('/checkout/success');
-        } else {
-             setIsLoading(false);
-        }
-    };
-    
-    return (
-        <form id="payment-form" onSubmit={handleSubmit}>
-            <PaymentElement id="payment-element" />
-            <Button disabled={isLoading || !stripe || !elements} id="submit" className="w-full mt-6 text-lg">
-                <span id="button-text">
-                    {isLoading ? "Processing..." : `Pay $${cartTotal.toFixed(2)}`}
-                </span>
-            </Button>
-            {message && <div id="payment-message" className="text-red-500 mt-2 text-sm">{message}</div>}
-        </form>
-    );
-}
-
+import { loadStripe } from '@stripe/stripe-js';
+import { Loader2 } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount } = useCart();
   const router = useRouter();
   const { toast } = useToast();
-  const [clientSecret, setClientSecret] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Redirect if the cart is empty
-    if (cartCount === 0) {
+    if (cartCount === 0 && !isLoading) {
       toast({
         title: 'Your cart is empty',
         description: 'Redirecting to homepage...',
       });
       router.push('/');
     }
-  }, [cartCount, router, toast]);
+  }, [cartCount, router, toast, isLoading]);
+  
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-  useEffect(() => {
-    if (cartCount > 0) {
-        // Create PaymentIntent as soon as the page loads with cart items
-        fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cartItems }),
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.clientSecret) {
-                setClientSecret(data.clientSecret)
-            } else {
-                toast({
-                    title: 'Error',
-                    description: data.error || 'Failed to initialize payment.',
-                    variant: 'destructive',
-                })
-            }
-        });
+      if (!stripe) {
+        throw new Error('Stripe.js failed to load.');
+      }
+      
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cartItems }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create checkout session.');
+      }
+
+      const session = await res.json();
+
+      const result = await stripe.redirectToCheckout({ sessionId: session.id });
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to redirect to checkout.');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Checkout Error',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
     }
-  }, [cartItems, cartCount, toast]);
-
-  const options: StripeElementsOptions = {
-    clientSecret,
-    appearance: {
-      theme: 'stripe',
-    },
   };
+
 
   if (cartCount === 0) {
     return (
@@ -140,61 +78,66 @@ export default function CheckoutPage() {
     <div className="container mx-auto px-4 py-8 md:py-16">
       <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-center font-headline">Review Your Order</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {cartItems.map(({ product, quantity }) => (
-                        <div key={product.id} className="flex justify-between items-center">
-                            <div className="flex items-center gap-4">
-                                <div className="relative h-16 w-16 rounded-md overflow-hidden border">
-                                    <Image src={product.image.url} alt={product.name} fill className="object-cover" data-ai-hint={product.image.hint} />
-                                </div>
-                                <div>
-                                    <p className="font-medium">{product.name}</p>
-                                    <p className="text-sm text-muted-foreground">Qty: {quantity}</p>
-                                </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {cartItems.map(({ product, quantity }) => (
+                    <div key={product.id} className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <div className="relative h-16 w-16 rounded-md overflow-hidden border">
+                                <Image src={product.image.url} alt={product.name} fill className="object-cover" data-ai-hint={product.image.hint} />
                             </div>
-                            <p className="font-semibold text-lg">${(product.price * quantity).toFixed(2)}</p>
+                            <div>
+                                <p className="font-medium">{product.name}</p>
+                                <p className="text-sm text-muted-foreground">Qty: {quantity}</p>
+                            </div>
                         </div>
-                    ))}
-                    <Separator />
-                     <div className="space-y-2 text-base">
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">Subtotal</span>
-                            <span>${cartTotal.toFixed(2)}</span>
-                        </div>
-                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Taxes & Fees</span>
-                            <span>Calculated at next step</span>
-                        </div>
+                        <p className="font-semibold text-lg">${(product.price * quantity).toFixed(2)}</p>
                     </div>
-                    <Separator />
-                     <div className="flex justify-between font-bold text-xl">
-                        <span>Total</span>
+                ))}
+                <Separator />
+                 <div className="space-y-2 text-base">
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Subtotal</span>
                         <span>${cartTotal.toFixed(2)}</span>
                     </div>
+                     <div className="flex justify-between">
+                        <span className="text-muted-foreground">Taxes & Fees</span>
+                        <span>Calculated at checkout</span>
+                    </div>
+                </div>
+                <Separator />
+                 <div className="flex justify-between font-bold text-xl">
+                    <span>Total</span>
+                    <span>${cartTotal.toFixed(2)}</span>
+                </div>
+            </CardContent>
+        </Card>
+        
+        <div className="flex flex-col items-center justify-center space-y-6">
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Complete Your Purchase</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground mb-6">
+                        You will be redirected to our secure payment partner, Stripe, to complete your purchase.
+                    </p>
+                    <Button onClick={handleCheckout} disabled={isLoading} className="w-full text-lg" size="lg">
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Redirecting to Stripe...
+                        </>
+                      ) : (
+                        `Proceed to Checkout ($${cartTotal.toFixed(2)})`
+                      )}
+                    </Button>
                 </CardContent>
             </Card>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Complete Your Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {clientSecret ? (
-              <Elements options={options} stripe={stripePromise}>
-                <CheckoutForm />
-              </Elements>
-            ) : (
-              <div className="text-center">
-                  <p>Initializing payment form...</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

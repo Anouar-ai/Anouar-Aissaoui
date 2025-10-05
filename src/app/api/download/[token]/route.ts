@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { tokens } from "@/lib/token-store"; // Updated import
+import { tokens } from "@/lib/token-store";
 import { products } from "@/lib/products";
 
 export async function GET(req: Request, { params }: { params: { token: string } }) {
@@ -29,16 +29,20 @@ export async function GET(req: Request, { params }: { params: { token: string } 
      return NextResponse.json({ error: "Product not found for this token." }, { status: 404 });
   }
 
-  // In a real app, you would handle the actual file download URL from the product object
-  // For WP Rocket, we redirect. For others, we serve a file.
-  if (product.id === 'wp-rocket-premium' && product.downloadUrl.startsWith('http')) {
-      tokens.delete(token); // Invalidate token after use
+  // Special handling for external URLs like WP Rocket
+  if (product.downloadUrl.startsWith('http')) {
+      tokens.delete(token); // Invalidate token after generating the redirect
       return NextResponse.redirect(product.downloadUrl);
   }
 
-  // For local files
-  // Note: The filename in `protected_files` must match the product ID.
-  const fileName = `${product.id}.zip`;
+  // For local files stored in `protected_files`
+  // The local "downloadUrl" in products.ts should be the filename, e.g. "elementor-pro.zip"
+  const fileName = product.downloadUrl.split('/').pop();
+  if (!fileName) {
+      console.error(`Invalid downloadUrl format for product: ${product.id}`);
+      return NextResponse.json({ error: "File configuration error." }, { status: 500 });
+  }
+
   const filePath = path.join(process.cwd(), "protected_files", fileName);
 
   try {
