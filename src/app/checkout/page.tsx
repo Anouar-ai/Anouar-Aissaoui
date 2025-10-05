@@ -7,7 +7,6 @@ import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CheckoutPage() {
@@ -35,10 +34,6 @@ export default function CheckoutPage() {
     });
 
     try {
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      if (!stripe) throw new Error('Stripe failed to initialize.');
-      
-      // The cartItems must be sent in the body of the request
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -49,16 +44,17 @@ export default function CheckoutPage() {
       
       const session = await res.json();
 
-      if (res.status !== 200) {
+      if (res.status !== 200 || !session.url) {
         throw new Error(session.error || 'Failed to create checkout session.');
       }
-
-      const result = await stripe.redirectToCheckout({ sessionId: session.id });
       
-      if (result.error) {
-        throw new Error(result.error.message || 'Failed to redirect to checkout.');
+      // Redirect the top-level window to break out of the iframe
+      if (window.top) {
+        window.top.location.href = session.url;
+      } else {
+        window.location.href = session.url;
       }
-      // No need to setIsLoading(false) here, as the user is redirected.
+
     } catch (error: any) {
       console.error("Checkout error:", error);
       toast({
