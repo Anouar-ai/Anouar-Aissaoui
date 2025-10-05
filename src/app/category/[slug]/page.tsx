@@ -45,28 +45,45 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         (product) => slugify(product.category) === params.slug
     );
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: categoryProducts.map((product, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: `${process.env.NEXT_PUBLIC_URL}/products/${product.id}`,
+            name: product.name
+        }))
+    }
+
     return (
-        <div className="container mx-auto px-4 py-8 md:py-16">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline text-white">
-                    {categoryName}s
-                </h1>
-                <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
-                    Discover our collection of premium {categoryName.toLowerCase()}s.
-                </p>
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <div className="container mx-auto px-4 py-8 md:py-16">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline text-white">
+                        {categoryName}s
+                    </h1>
+                    <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
+                        Discover our collection of premium {categoryName.toLowerCase()}s.
+                    </p>
+                </div>
+                {categoryProducts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {categoryProducts.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-slate-400">
+                        <p>No products found in this category.</p>
+                    </div>
+                )}
             </div>
-            {categoryProducts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {categoryProducts.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center text-slate-400">
-                    <p>No products found in this category.</p>
-                </div>
-            )}
-        </div>
+        </>
     );
 }
 
