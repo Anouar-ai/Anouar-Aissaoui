@@ -85,7 +85,8 @@ export function CartSheet({ children }: { children: ReactNode }) {
                         <Image
                           src={product.image.url}
                           alt={product.name}
-                          fill
+                          width={64}
+                          height={64}
                           className="object-cover"
                           data-ai-hint={product.image.hint}
                         />

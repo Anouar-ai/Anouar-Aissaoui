@@ -69,6 +69,7 @@ function ProductCard({ product }: { product: typeof products[0] }) {
                 alt={product.name}
                 width={600}
                 height={338}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint={product.image.hint}
               />
