@@ -15,7 +15,7 @@ function ProductCard({ product }: { product: typeof products[0] }) {
     <GlowCard glowColor="purple" className="p-0" customSize={true}>
       <Card className="flex flex-col overflow-hidden transition-all duration-300 w-full h-full bg-transparent border-none">
         <CardHeader className="p-0">
-          <Link href={`/products/${product.id}`} className="block">
+          <Link href={`/products/${product.id}`} className="block group">
             <div className="aspect-video overflow-hidden">
               <Image
                 src={product.image.url}
@@ -58,7 +58,32 @@ function ProductCard({ product }: { product: typeof products[0] }) {
 export default function Home() {
   return (
     <div className="flex flex-col">
-      <section id="products" className="py-16 sm:py-24 bg-gray-950">
+       <section className="relative overflow-hidden py-24 sm:py-32">
+        <div className="container mx-auto px-4 text-center">
+          <div className="relative z-10">
+            <Badge variant="secondary" className="mb-4">
+              Now with Instant Downloads
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+              Premium Digital Tools, Unlocked
+            </h1>
+            <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+              Get official licenses for the best WordPress plugins and themes. Secure payments, instant downloads, and 1 year of free updates.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Button asChild size="lg">
+                <Link href="/#products">Browse Products</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/glow-demo">View Demo</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="absolute inset-0 z-0 bg-grid-slate-700/[0.05] [mask-image:linear-gradient(to_bottom,white,transparent,transparent)]"></div>
+      </section>
+
+      <section id="products" className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-headline text-white">Our Products</h2>

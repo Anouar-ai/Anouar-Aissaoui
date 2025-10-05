@@ -158,9 +158,9 @@ export default function CheckoutPage() {
   const options = {
     clientSecret,
     appearance: {
-      theme: 'stripe' as const,
+      theme: 'night' as const,
       variables: {
-        colorPrimary: '#6a0dad', // primary color from globals.css HSL
+        colorPrimary: '#8b5cf6', // primary color from globals.css HSL
       },
     }
   };
@@ -179,7 +179,7 @@ export default function CheckoutPage() {
       <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 text-center font-headline">Review & Pay</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="lg:order-2">
-           <Card className="w-full">
+           <Card className="w-full bg-secondary/30">
                 <CardHeader>
                     <CardTitle>Secure Payment</CardTitle>
                 </CardHeader>
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                 </CardContent>
             </Card>
         </div>
-        <Card className="lg:order-1">
+        <Card className="lg:order-1 bg-secondary/30">
             <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
             </CardHeader>
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
                 {cartItems.map(({ product, quantity }) => (
                     <div key={product.id} className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                            <div className="relative h-16 w-16 rounded-md overflow-hidden border">
+                            <div className="relative h-16 w-16 rounded-md overflow-hidden border border-border/50">
                                 <Image src={product.image.url} alt={product.name} fill className="object-cover" data-ai-hint={product.image.hint} />
                             </div>
                             <div>

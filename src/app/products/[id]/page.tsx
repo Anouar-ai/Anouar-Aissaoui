@@ -28,7 +28,7 @@ export default function ProductPage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden bg-secondary/30">
           <CardContent className="p-0">
             <div className="aspect-video">
               <Image
@@ -45,7 +45,7 @@ export default function ProductPage() {
         </Card>
 
         <div className="flex flex-col">
-          <Badge variant="outline" className="w-fit mb-2">{product.category}</Badge>
+          <Badge variant="outline" className="w-fit mb-2 border-primary/50 text-primary">{product.category}</Badge>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2 font-headline">{product.name}</h1>
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center text-yellow-500">
@@ -80,12 +80,12 @@ export default function ProductPage() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" onClick={handleAddToCart} className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button size="lg" onClick={handleAddToCart} className="flex-1">
               Add to Cart
             </Button>
           </div>
           
-          <div className="border-t pt-6">
+          <div className="border-t border-border/50 pt-6">
             <h3 className="text-lg font-semibold mb-2">License Details:</h3>
             <ul className="list-disc list-inside text-muted-foreground space-y-1">
               <li>1 Year of Official Updates</li>
