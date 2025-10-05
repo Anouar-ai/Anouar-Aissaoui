@@ -18,31 +18,7 @@ export default function ProductClient({ product }: { product: Product }) {
     addItem(product, quantity);
   };
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    description: product.longDescription,
-    image: product.image.url,
-    offers: {
-      '@type': 'Offer',
-      price: product.price.toFixed(2),
-      priceCurrency: 'USD',
-      availability: 'https://schema.org/InStock',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: product.rating,
-      reviewCount: product.reviews,
-    },
-  };
-  
   return (
-    <>
-    <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
       <Card className="overflow-hidden bg-secondary/30 border-none">
         <CardContent className="p-0">
@@ -113,6 +89,5 @@ export default function ProductClient({ product }: { product: Product }) {
         </div>
       </div>
     </div>
-    </>
   )
 }

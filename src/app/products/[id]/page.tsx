@@ -21,6 +21,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${product.name} | Digital Product Hub`,
     description: product.longDescription,
+    alternates: {
+      canonical: `/products/${product.id}`,
+    },
     openGraph: {
       title: product.name,
       description: product.longDescription,
@@ -44,10 +47,35 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     notFound();
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.longDescription,
+    image: product.image.url,
+    offers: {
+      '@type': 'Offer',
+      price: product.price.toFixed(2),
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating,
+      reviewCount: product.reviews,
+    },
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      <ProductClient product={product} />
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="container mx-auto px-4 py-8 md:py-16">
+        <ProductClient product={product} />
+      </div>
+    </>
   );
 }
 

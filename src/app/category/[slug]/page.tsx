@@ -3,6 +3,7 @@ import { products } from '@/lib/products';
 import { ProductCard } from '@/components/product-card';
 import { slugify } from '@/lib/utils';
 import React from 'react';
+import type { Metadata } from 'next';
 
 export const revalidate = 3600; // Revalidate at most once per hour
 
@@ -14,7 +15,7 @@ const getCategoryNameFromSlug = (slug: string): string | null => {
     return categoryMap[slug] || null;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const categoryName = getCategoryNameFromSlug(params.slug);
 
     if (!categoryName) {
@@ -24,8 +25,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     return {
-        title: `${categoryName} | Digital Product Hub`,
-        description: `Browse all ${categoryName} available on Digital Product Hub.`,
+        title: `${categoryName}s | Digital Product Hub`,
+        description: `Browse all ${categoryName}s available on Digital Product Hub.`,
+        alternates: {
+            canonical: `/category/${params.slug}`,
+        },
     };
 }
 
@@ -45,10 +49,10 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         <div className="container mx-auto px-4 py-8 md:py-16">
             <div className="text-center mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline text-white">
-                    {categoryName}
+                    {categoryName}s
                 </h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
-                    Discover our collection of premium {categoryName.toLowerCase()}.
+                    Discover our collection of premium {categoryName.toLowerCase()}s.
                 </p>
             </div>
             {categoryProducts.length > 0 ? (
