@@ -1,0 +1,65 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { Star } from 'lucide-react';
+import { products } from '@/lib/products';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { GlowCard } from '@/components/ui/spotlight-card';
+import { slugify } from '@/lib/utils';
+import React from 'react';
+
+type Product = typeof products[0];
+
+export function ProductCard({ product, priority = false }: { product: Product, priority?: boolean }) {
+  const categorySlug = slugify(product.category);
+
+  return (
+    <GlowCard glowColor="purple" className="p-0" customSize={true}>
+      <Card className="flex flex-col overflow-hidden transition-all duration-300 w-full h-full bg-transparent border-none">
+        <CardHeader className="p-0">
+          <Link href={`/products/${product.id}`} className="block group">
+            <div className="aspect-video overflow-hidden relative">
+              <Image
+                src={product.image.url}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                data-ai-hint={product.image.hint}
+                priority={priority}
+              />
+            </div>
+          </Link>
+        </CardHeader>
+        <CardContent className="p-6 flex-grow">
+          <Link href={`/category/${categorySlug}`}>
+            <Badge variant="outline" className="mb-2 border-purple-300/50 text-purple-300 hover:bg-purple-300/10 cursor-pointer">
+              {product.category}
+            </Badge>
+          </Link>
+          <CardTitle className="text-xl font-bold mb-2 leading-tight text-white">
+            <Link href={`/products/${product.id}`} className="hover:text-primary">
+              {product.name}
+            </Link>
+          </CardTitle>
+          <p className="text-gray-400 text-sm line-clamp-2">{product.description}</p>
+          <div className="flex items-center mt-4">
+            <div className="flex items-center text-yellow-500">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'fill-current' : ''}`} />
+              ))}
+            </div>
+            <span className="text-xs text-gray-400 ml-2">({product.reviews} reviews)</span>
+          </div>
+        </CardContent>
+        <CardFooter className="p-6 pt-0 flex justify-between items-center">
+          <p className="text-2xl font-bold text-primary">${product.price}</p>
+          <Button asChild variant="outline">
+             <Link href={`/products/${product.id}`}>View Details</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </GlowCard>
+  );
+}

@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/sheet"
 
 const navLinks = [
-  { href: '/#products', label: 'Products' },
+  { href: '/#products', label: 'All Products' },
+  { href: '/category/wordpress-plugin', label: 'Plugins' },
+  { href: '/category/wordpress-theme', label: 'Themes' },
 ];
 
 export function Header() {
