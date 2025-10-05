@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation';
 import { products } from '@/lib/products';
 import { ProductCard } from '@/components/product-card';
